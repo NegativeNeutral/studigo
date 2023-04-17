@@ -6,7 +6,7 @@ import { json } from '@sveltejs/kit';
 const oauth2Client = new google.auth.OAuth2({
 	clientSecret: env.GCP_CLIENT_SECRET,
 	clientId: env.GCP_CLIENT_ID,
-	redirectUri: '/'
+	redirectUri: env.GCP_REDIRECT_URL
 });
 
 // generate a url that asks permissions for Blogger and Google Calendar scopes
