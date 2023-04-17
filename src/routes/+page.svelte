@@ -1,44 +1,37 @@
 <script lang="ts">
 	import { InlineCalendar, themes } from 'svelte-calendar';
-	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
+
+	/**
+		TODO: Call this domain on the API
+		`https://www.googleapis.com/calendar/v3/calendars/${calendar_name}/events?orderBy=updated&timeMax=${start_of_day}&timeMin=${end_of_day}`
+		`Authorization: Bearer ${YOUR_ACCESS_TOKEN}`
+	**/
 
 	export let data: PageData;
 
 	const { dark: theme } = themes;
 	const MONDAY = 1;
-
-	let today = new Date();
-	let end = new Date();
-	end.setMonth(end.getMonth() + 3);
+	const TODAY = new Date();
+	const END = new Date();
+	END.setMonth(END.getMonth() + 3);
 
 	let store: any; // Hack
-
 	$: selected = $store?.selected;
 
-	let url = '';
-
-	onMount(async () => {
-		const PATH = `/`;
-		const res = await fetch(PATH, { method: 'GET' });
-		const json = await res.json();
-		console.log(json.url as string);
-		url = json.url as string;
-		// TODO: Add button to call json.url
-	});
+	let google_auth_url = data.google_auth_url;
 </script>
 
 <h1>Welcome to StudiGo</h1>
 
-<a href={url}>Sign into Google!</a>
-<h1>{data.url}</h1>
+<a href={google_auth_url}>Sign into Google!</a>
 
 <div style="display: flex; flex-direction: row">
 	<InlineCalendar
 		{theme}
-		selected={today}
-		start={today}
-		{end}
+		selected={TODAY}
+		start={TODAY}
+		end={END}
 		startOfWeekIndex={MONDAY}
 		bind:store
 	/>
