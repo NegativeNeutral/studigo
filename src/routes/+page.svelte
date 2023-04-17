@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { InlineCalendar, themes } from 'svelte-calendar';
 	import { onMount } from 'svelte';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 
 	const { dark: theme } = themes;
 	const MONDAY = 1;
@@ -13,17 +16,22 @@
 
 	$: selected = $store?.selected;
 
+	let url = '';
+
 	onMount(async () => {
 		const PATH = `/`;
 		const res = await fetch(PATH, { method: 'GET' });
 		const json = await res.json();
-		console.log(json.url as string)
-		return json.url as string;
+		console.log(json.url as string);
+		url = json.url as string;
 		// TODO: Add button to call json.url
 	});
 </script>
 
 <h1>Welcome to StudiGo</h1>
+
+<a href={url}>Sign into Google!</a>
+<h1>{data.url}</h1>
 
 <div style="display: flex; flex-direction: row">
 	<InlineCalendar
