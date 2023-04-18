@@ -8,10 +8,7 @@ export const load = (async ({ url }) => {
 		await set_google_oauth2_credentials(code);
 	}
 
-	// TODO: Save this to a database also
-	// TODO: Sanitise this also
+	// TODO: If code is null, have sensible handling...
 
-	throw redirect(302, '/');
-
-	return {};
+	throw redirect(302, '/'); // TODO: Redirect to new route that allows selecting of calendar
 }) satisfies PageServerLoad;

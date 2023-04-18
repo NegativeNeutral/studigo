@@ -2,12 +2,6 @@
 	import { InlineCalendar, themes } from 'svelte-calendar';
 	import type { PageData } from './$types';
 
-	/**
-		TODO: Call this domain on the API
-		`https://www.googleapis.com/calendar/v3/calendars/${calendar_name}/events?orderBy=updated&timeMax=${start_of_day}&timeMin=${end_of_day}`
-		`Authorization: Bearer ${YOUR_ACCESS_TOKEN}`
-	**/
-
 	export let data: PageData;
 
 	const { dark: theme } = themes;
