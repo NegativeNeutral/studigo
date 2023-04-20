@@ -2,8 +2,6 @@
 	import { InlineCalendar, themes } from 'svelte-calendar';
 	import type { PageData } from './$types';
 
-	export let data: PageData;
-
 	const { dark: theme } = themes;
 	const MONDAY = 1;
 	const TODAY = new Date();
@@ -13,13 +11,13 @@
 	let store: any; // Hack
 	$: selected = $store?.selected;
 
-	let google_auth_url = data.google_auth_url;
+	export let data: PageData;
 	let dates_code = data.dates_code;
 </script>
 
 <h1>Welcome to StudiGo</h1>
 
-<a href={google_auth_url}>Sign into Google!</a>
+<a href="/login">Login!</a>
 
 <h2>{dates_code}</h2>
 

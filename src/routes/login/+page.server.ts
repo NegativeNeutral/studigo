@@ -1,8 +1,8 @@
 import type { PageServerLoad } from './$types';
-import { google_get_dates } from '$lib/google_helpers/oauth_client';
+import { google_get_auth_req_url } from '$lib/google_helpers/oauth_client';
 
 export const load = (({}) => {
 	return {
-		dates_code: google_get_dates()
+		google_auth_url: google_get_auth_req_url()
 	};
 }) satisfies PageServerLoad;

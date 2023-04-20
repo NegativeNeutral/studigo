@@ -11,7 +11,7 @@ let is_oauth_set = false;
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
 
-export function get_google_auth_req_url() {
+export function google_get_auth_req_url() {
 	const url = GOOGLE_OAUTH2_CLIENT.generateAuthUrl({
 		// 'online' (default) or 'offline' (gets refresh_token)
 		access_type: 'offline',
@@ -23,7 +23,7 @@ export function get_google_auth_req_url() {
 	return url;
 }
 
-export function get_dates() {
+export function google_get_dates() {
 	if (is_oauth_set) {
 		// TODO: Make API call to get free dates
 		return 'is_oauth_set: true - Getting dates!';
@@ -33,7 +33,7 @@ export function get_dates() {
 	}
 }
 
-export async function set_google_oauth2_credentials(code: string) {
+export async function google_set_oauth2_credentials(code: string) {
 	const { tokens } = await GOOGLE_OAUTH2_CLIENT.getToken(code);
 	GOOGLE_OAUTH2_CLIENT.setCredentials(tokens);
 	is_oauth_set = true;
