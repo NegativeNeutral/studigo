@@ -7,6 +7,8 @@ const GOOGLE_OAUTH2_CLIENT = new google.auth.OAuth2({
 	redirectUri: env.GCP_REDIRECT_URL
 });
 
+let is_oauth_set = false;
+
 const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
 
 export function get_google_auth_req_url() {
@@ -21,9 +23,20 @@ export function get_google_auth_req_url() {
 	return url;
 }
 
+export function get_dates() {
+	if (is_oauth_set) {
+		// TODO: Make API call to get free dates
+		return 'is_oauth_set: true - Getting dates!';
+	} else {
+		// TODO: return something sensible
+		return 'is_oauth_set: false - Doing nothing!';
+	}
+}
+
 export async function set_google_oauth2_credentials(code: string) {
 	const { tokens } = await GOOGLE_OAUTH2_CLIENT.getToken(code);
 	GOOGLE_OAUTH2_CLIENT.setCredentials(tokens);
+	is_oauth_set = true;
 	// TODO: Save tokens.access_token & tokens.refresh_token to a database
 }
 

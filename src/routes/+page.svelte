@@ -14,11 +14,14 @@
 	$: selected = $store?.selected;
 
 	let google_auth_url = data.google_auth_url;
+	let dates_code = data.dates_code;
 </script>
 
 <h1>Welcome to StudiGo</h1>
 
 <a href={google_auth_url}>Sign into Google!</a>
+
+<h2>{dates_code}</h2>
 
 <div style="display: flex; flex-direction: row">
 	<InlineCalendar
