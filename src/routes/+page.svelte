@@ -16,14 +16,16 @@
 
 	$: selected_start_time = $store?.selected as Date;
 	let hour_is_free = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(true);
+	let is_waiting_for_api = false;
 
 	// When selected_start_time changes, run on_new_date_selected
 	$: on_new_times_retrieved(on_new_date_selected(selected_start_time));
 
 	/**
 	 * The function to run when a new date is selected on the calendar view. It:
-	 * 1. calculates the start and end time of the selected date
-	 * 2. Uses those times to retrieve the events for the date from the Google API
+	 * 1. Fills the @var hour_is_free array with true
+	 * 2. calculates the start and end time of the selected date
+	 * 3. Uses those times to retrieve the events for the date from the Google API
 	 * @param start_time_o An object representing the selected date
 	 * @returns the events for the selected day, as a Promise
 	 */
@@ -42,6 +44,7 @@
 		const end_time_s = end_time_o?.toISOString();
 
 		// Fetch query & output
+		is_waiting_for_api = true;
 		const query = `${data.path}?dateMin=${start_time_s}&dateMax=${end_time_s}`;
 		let p = await fetch(query, { method: 'GET' }); // promise
 		let o = await p.json(); // object
@@ -77,6 +80,7 @@
 				hour_is_free[event_start_hour - STUDIO_OPENING_HOUR + i] = false;
 			}
 		});
+		is_waiting_for_api = false;
 	}
 </script>
 
@@ -96,22 +100,29 @@
 		<div style="background-color: grey">
 			<p>{selected_start_time}</p>
 
-			<div style="text-align: center; background-color: grey">
-				{#each hour_is_free as hour, i}
-					<div style="display: flex; flex-direction: row">
-						{#if hour}
-							<h5 style="background-color: green">
-								{(i + STUDIO_OPENING_HOUR).toString()}:00
-							</h5>
-							<button>Book this hour!</button>
-						{:else if !hour}
-							<h5 style="background-color: red">
-								{(i + STUDIO_OPENING_HOUR).toString()}:00
-							</h5>
-						{/if}
-					</div>
-				{/each}
-			</div>
+			{#if is_waiting_for_api}
+				<h1>
+					Waiting for dates, imagine there is a loading spinner here or
+					something IDK
+				</h1>
+			{:else}
+				<div style="text-align: center; background-color: grey">
+					{#each hour_is_free as hour, i}
+						<div style="display: flex; flex-direction: row">
+							{#if hour}
+								<h5 style="background-color: green">
+									{(i + STUDIO_OPENING_HOUR).toString()}:00
+								</h5>
+								<button>Book this hour!</button>
+							{:else if !hour}
+								<h5 style="background-color: red">
+									{(i + STUDIO_OPENING_HOUR).toString()}:00
+								</h5>
+							{/if}
+						</div>
+					{/each}
+				</div>
+			{/if}
 		</div>
 	</div>
 {:else}
