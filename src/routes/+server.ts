@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { google_get_dates } from '$lib/google_helpers/oauth_client';
+import { google_get_dates } from '$lib/google_helpers/calendar_client';
 
 /**
  * The function that handles any GET requests
