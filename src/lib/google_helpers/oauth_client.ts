@@ -7,30 +7,22 @@ const GOOGLE_OAUTH2_CLIENT = new google.auth.OAuth2({
 	redirectUri: env.GCP_REDIRECT_URL
 });
 
+const CALENDAR_API = google.calendar({
+	version: 'v3',
+	auth: GOOGLE_OAUTH2_CLIENT
+});
+
 let is_oauth_set = false;
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
 
 export function google_get_auth_req_url() {
 	const url = GOOGLE_OAUTH2_CLIENT.generateAuthUrl({
-		// 'online' (default) or 'offline' (gets refresh_token)
-		access_type: 'offline',
-
-		// If you only need one scope you can pass it as a string
+		access_type: 'offline', // offline gets refresh token always
 		scope: SCOPES
 	});
 
 	return url;
-}
-
-export function google_get_dates() {
-	if (is_oauth_set) {
-		// TODO: Make API call to get free dates
-		return 'is_oauth_set: true - Getting dates!';
-	} else {
-		// TODO: return something sensible
-		return 'is_oauth_set: false - Doing nothing!';
-	}
 }
 
 export async function google_set_oauth2_credentials(code: string) {
@@ -38,6 +30,35 @@ export async function google_set_oauth2_credentials(code: string) {
 	GOOGLE_OAUTH2_CLIENT.setCredentials(tokens);
 	is_oauth_set = true;
 	// TODO: Save tokens.access_token & tokens.refresh_token to a database
+}
+
+export async function google_get_dates(timeMin: string, timeMax: string) {
+	if (is_oauth_set) {
+		console.log('Fetching dates from Google API');
+
+		let api_out = await CALENDAR_API.events.list({
+			calendarId: 'lawrencewarren2@gmail.com',
+			timeMin: timeMin,
+			timeMax: timeMax
+		});
+
+		let events = api_out.data.items;
+		let times: [string, string][] = [];
+
+		events?.forEach((item) => {
+			// TODO; If whole day is blocked out, item.start & item.date ONLY have date, not dateTime - handle it!
+			times.push([
+				item.start?.dateTime as string,
+				item.end?.dateTime as string
+			]);
+		});
+
+		return times;
+	} else {
+		console.log('No oauth!');
+		// TODO: Handle this instance - hide resources
+		return [];
+	}
 }
 
 /**
