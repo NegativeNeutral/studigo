@@ -2,6 +2,7 @@ import {
 	google_get_is_oauth_set,
 	google_get_calendar_api
 } from '$lib/google_helpers/oauth_client';
+import type { Cal_event } from '$lib/types';
 
 const CALENDAR_API = google_get_calendar_api();
 
@@ -15,9 +16,11 @@ export async function google_get_dates(timeMin: string, timeMax: string) {
 				timeMin: timeMin,
 				timeMax: timeMax
 			})
-			.then((p) => { return p.data.items; });
+			.then((p) => {
+				return p.data.items;
+			});
 
-		let times: [string, string][] = [];
+		let times: Cal_event[] = [];
 
 		events?.forEach((item) => {
 			times.push([

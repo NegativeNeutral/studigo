@@ -1,64 +1,81 @@
 <script lang="ts">
 	import { InlineCalendar, themes } from 'svelte-calendar';
 	import type { PageData } from './$types';
+	import type { Cal_event } from '$lib/types';
 
-	export let data: PageData;
 	const { dark: theme } = themes;
 	const MONDAY = 1;
 	const TODAY = new Date();
 	const END = new Date();
 	END.setMonth(END.getMonth() + 3);
+	const STUDIO_OPENING_HOUR = 9; // Open at 9am
+	const STUDIO_OPERATING_HOURS = 8; // Operates from 9am until 5pm
+	export let data: PageData;
 
 	let store: any; // Hack
-	$: SELECTED_START_TIME = $store?.selected as Date;
 
-	let start_hour: number;
-	let end_hour: number;
+	$: selected_start_time = $store?.selected as Date;
+	let hour_is_free = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(true);
 
-	let html_times = new Array<HTMLHeadingElement>(8);
+	// When selected_start_time changes, run on_new_date_selected
+	$: on_new_times_retrieved(on_new_date_selected(selected_start_time));
 
-	// When SELECTED_START_TIME changes, run on_new_date_selected
-	$: on_new_times_retrieved(on_new_date_selected(SELECTED_START_TIME));
-
-	async function on_new_date_selected(SELECTED_START_TIME: Date) {
-		start_hour = 0;
-		end_hour = 0;
-		if (!SELECTED_START_TIME) {
+	/**
+	 * The function to run when a new date is selected on the calendar view. It:
+	 * 1. calculates the start and end time of the selected date
+	 * 2. Uses those times to retrieve the events for the date from the Google API
+	 * @param start_time_o An object representing the selected date
+	 * @returns the events for the selected day, as a Promise
+	 */
+	async function on_new_date_selected(start_time_o: Date) {
+		hour_is_free = hour_is_free.fill(true);
+		if (!start_time_o) {
 			return [];
 		}
 
-		// Create END time of day
-		const SELECTED_END_TIME = new Date(SELECTED_START_TIME);
-		SELECTED_END_TIME?.setHours(23, 59, 59, 999);
+		// Create END time of day object
+		const end_time_o = new Date(start_time_o);
+		end_time_o?.setHours(23, 59, 59, 999);
 
-		// Stringify
-		const S_START_TIME = SELECTED_START_TIME?.toISOString();
-		const S_END_TIME = SELECTED_END_TIME?.toISOString();
+		// Stringify the dates
+		const start_time_s = start_time_o?.toISOString();
+		const end_time_s = end_time_o?.toISOString();
 
 		// Fetch query & output
-		const QUERY = `${data.path}?dateMin=${S_START_TIME}&dateMax=${S_END_TIME}`;
-		let p = await fetch(QUERY, { method: 'GET' }); // promise
+		const query = `${data.path}?dateMin=${start_time_s}&dateMax=${end_time_s}`;
+		let p = await fetch(query, { method: 'GET' }); // promise
 		let o = await p.json(); // object
-		return o.times as [string, string][]; // list of tuples
+		return o.times as Cal_event[]; // list of tuples
 	}
 
-	async function on_new_times_retrieved(obj_p: Promise<[string, string][]>) {
-		const TIMES = await obj_p;
-		console.log(TIMES);
+	/**
+	 * The function to run once new dates are retrieved. It:
+	 * 1. For each time in the times array:
+	 * 1a. Gets the start and end time of the event as string
+	 * 1b. Calculates the event duration, in hours
+	 * 1c. Uses these values to set the hours where an event is happening in the
+	 *     @var hour_is_free array to false
+	 * @param events_p A Promise containing a tuple of all events for the day.
+	 */
+	async function on_new_times_retrieved(events_p: Promise<Cal_event[]>) {
+		(await events_p).forEach((time) => {
+			// Get the date objects needed
+			const start_time_o = new Date(time[0]);
+			const end_time_o = new Date(time[1]);
 
-		TIMES.forEach((time) => {
-			// TODO: Set this to up to work with more than 1 event in a day
-			const START_D = new Date(time[0]);
-			const END_D = new Date(time[1]);
+			// Get the hours difference & the start hour as numbers
+			const event_start_hour = start_time_o.getHours();
+			const event_duration =
+				(end_time_o.getTime() - start_time_o.getTime()) / 1000 / (60 * 60);
 
-			console.log(`${START_D} , ${END_D}`);
-
-			start_hour = START_D.getHours();
-			// Extra logic so that a 1 hour slot doesn't block out 2 hours
-			end_hour = !END_D.getMinutes() ? END_D.getHours() - 1 : END_D.getHours();
-			end_hour += end_hour < start_hour ? 24 : 0;
-
-			console.log(`${start_hour}, ${end_hour}`);
+			for (
+				let i = 0;
+				i < event_duration &&
+				event_start_hour - STUDIO_OPENING_HOUR + i < STUDIO_OPERATING_HOURS;
+				i++
+			) {
+				hour_is_free[event_start_hour - STUDIO_OPENING_HOUR + i] = false;
+			}
 		});
 	}
 </script>
@@ -77,28 +94,20 @@
 		/>
 
 		<div style="background-color: grey">
-			<p>{SELECTED_START_TIME}</p>
+			<p>{selected_start_time}</p>
 
 			<div style="text-align: center; background-color: grey">
-				{#each html_times as el, i}
+				{#each hour_is_free as hour, i}
 					<div style="display: flex; flex-direction: row">
-						{#if start_hour?.toString() <= el?.id && end_hour?.toString() >= el?.id}
-							<h5
-								id={(i + 9).toString()}
-								bind:this={el}
-								style="background-color: red"
-							>
-								{(i + 9).toString()}:00
+						{#if hour}
+							<h5 style="background-color: green">
+								{(i + STUDIO_OPENING_HOUR).toString()}:00
 							</h5>
-						{:else}
-							<h5
-								id={(i + 9).toString()}
-								bind:this={el}
-								style="background-color: green"
-							>
-								{(i + 9).toString()}:00
+							<button>Book this hour!</button>
+						{:else if !hour}
+							<h5 style="background-color: red">
+								{(i + STUDIO_OPENING_HOUR).toString()}:00
 							</h5>
-							<button>Book!</button>
 						{/if}
 					</div>
 				{/each}
