@@ -12,8 +12,8 @@
 	let store: any; // Hack
 	$: SELECTED_START_TIME = $store?.selected as Date;
 
-	let start_hour: number | undefined;
-	let end_hour: number | undefined;
+	let start_hour: number;
+	let end_hour: number;
 
 	let html_times = new Array<HTMLHeadingElement>(8);
 
@@ -21,8 +21,8 @@
 	$: on_new_times_retrieved(on_new_date_selected(SELECTED_START_TIME));
 
 	async function on_new_date_selected(SELECTED_START_TIME: Date) {
-		start_hour = undefined;
-		end_hour = undefined;
+		start_hour = 0;
+		end_hour = 0;
 		if (!SELECTED_START_TIME) {
 			return [];
 		}
@@ -30,7 +30,6 @@
 		// Create END time of day
 		const SELECTED_END_TIME = new Date(SELECTED_START_TIME);
 		SELECTED_END_TIME?.setHours(23, 59, 59, 999);
-		SELECTED_END_TIME?.setDate(SELECTED_END_TIME.getDate() + 1);
 
 		// Stringify
 		const S_START_TIME = SELECTED_START_TIME?.toISOString();
@@ -45,14 +44,21 @@
 
 	async function on_new_times_retrieved(obj_p: Promise<[string, string][]>) {
 		const TIMES = await obj_p;
+		console.log(TIMES);
 
 		TIMES.forEach((time) => {
+			// TODO: Set this to up to work with more than 1 event in a day
 			const START_D = new Date(time[0]);
 			const END_D = new Date(time[1]);
 
+			console.log(`${START_D} , ${END_D}`);
+
 			start_hour = START_D.getHours();
-			end_hour = END_D.getHours();
-			console.log(`Start: ${start_hour}\nEnd: ${end_hour}`);
+			// Extra logic so that a 1 hour slot doesn't block out 2 hours
+			end_hour = !END_D.getMinutes() ? END_D.getHours() - 1 : END_D.getHours();
+			end_hour += end_hour < start_hour ? 24 : 0;
+
+			console.log(`${start_hour}, ${end_hour}`);
 		});
 	}
 </script>
@@ -75,20 +81,26 @@
 
 			<div style="text-align: center; background-color: grey">
 				{#each html_times as el, i}
-					<h5
-						id={(i + 9).toString()}
-						bind:this={el}
-						style="background-color: {start_hour?.toString() == el?.id ||
-						end_hour?.toString() == el?.id
-							? 'red'
-							: 'green'}"
-					>
-						{#if start_hour?.toString() == el?.id || end_hour?.toString() == el?.id}
-							CAN'T BOOK
+					<div style="display: flex; flex-direction: row">
+						{#if start_hour?.toString() <= el?.id && end_hour?.toString() >= el?.id}
+							<h5
+								id={(i + 9).toString()}
+								bind:this={el}
+								style="background-color: red"
+							>
+								{(i + 9).toString()}:00
+							</h5>
 						{:else}
-							{(i + 9).toString()}:00
+							<h5
+								id={(i + 9).toString()}
+								bind:this={el}
+								style="background-color: green"
+							>
+								{(i + 9).toString()}:00
+							</h5>
+							<button>Book!</button>
 						{/if}
-					</h5>
+					</div>
 				{/each}
 			</div>
 		</div>
