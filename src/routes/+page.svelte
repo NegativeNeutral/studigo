@@ -82,6 +82,11 @@
 		});
 		is_waiting_for_api = false;
 	}
+
+	function book_time_on_click(hour: number) {
+		console.log(hour);
+		return null;
+	}
 </script>
 
 <h1>Welcome to StudiGo</h1>
@@ -98,30 +103,64 @@
 		/>
 
 		<div style="background-color: grey">
-			<p>{selected_start_time}</p>
-
 			{#if is_waiting_for_api}
 				<h1>
 					Waiting for dates, imagine there is a loading spinner here or
 					something IDK
 				</h1>
 			{:else}
-				<div style="text-align: center; background-color: grey">
-					{#each hour_is_free as hour, i}
-						<div style="display: flex; flex-direction: row">
-							{#if hour}
-								<h5 style="background-color: green">
-									{(i + STUDIO_OPENING_HOUR).toString()}:00
-								</h5>
-								<button>Book this hour!</button>
-							{:else if !hour}
-								<h5 style="background-color: red">
-									{(i + STUDIO_OPENING_HOUR).toString()}:00
-								</h5>
-							{/if}
-						</div>
-					{/each}
-				</div>
+				<form
+					style="text-align: center; background-color: grey; display: flex; flex-direction: column"
+					action="/booking-submit"
+					method="post"
+				>
+					<h2>
+						Book PHOTOMAFIA STUDIOS for {selected_start_time?.toLocaleDateString(
+							'en-GB',
+							{
+								weekday: 'long',
+								year: 'numeric',
+								month: 'long',
+								day: 'numeric'
+							}
+						)}
+					</h2>
+					<label for="name">Name:</label>
+					<input type="text" id="name" name="name" required />
+
+					<label for="email">Email:</label>
+					<input type="email" id="email" name="email" required />
+
+					<div
+						style="display: flex; flex-direction: column; align-items: center"
+					>
+						{#each hour_is_free as hour, i}
+							<div style="display: flex; flex-direction: row">
+								{#if hour}
+									<input
+										type="checkbox"
+										name="hour_to_book"
+										id={(i + STUDIO_OPENING_HOUR).toString()}
+										value={(i + STUDIO_OPENING_HOUR).toString()}
+									/>
+									<label
+										for={(i + STUDIO_OPENING_HOUR).toString()}
+										style="background-color: green"
+									>
+										{(i + STUDIO_OPENING_HOUR).toString()}:00
+									</label>
+								{:else if !hour}
+									<p style="background-color: red; margin: 0; padding: 0">
+										{(i + STUDIO_OPENING_HOUR).toString()}:00
+									</p>
+								{/if}
+							</div>
+						{/each}
+					</div>
+					<label for="message">Additional notes:</label>
+					<textarea id="message" name="message" />
+					<button type="submit">Submit</button>
+				</form>
 			{/if}
 		</div>
 	</div>
