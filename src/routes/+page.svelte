@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { InlineCalendar, themes } from 'svelte-calendar';
+	import Booking_form from '$lib/components/booking_form.svelte';
 	import type { PageData } from './$types';
 	import type { Cal_event } from '$lib/types';
 
@@ -40,12 +41,13 @@
 		end_time_o?.setHours(23, 59, 59, 999);
 
 		// Stringify the dates
-		const start_time_s = start_time_o?.toISOString();
-		const end_time_s = end_time_o?.toISOString();
+		const start_time_s = encodeURIComponent(start_time_o?.toISOString());
+		const end_time_s = encodeURIComponent(end_time_o?.toISOString());
+		const cal_id = encodeURIComponent('lawrencewarren2@gmail.com');
 
 		// Fetch query & output
 		is_waiting_for_api = true;
-		const query = `${data.path}?dateMin=${start_time_s}&dateMax=${end_time_s}`;
+		const query = `${data.path}?calID=${cal_id}&dateMin=${start_time_s}&dateMax=${end_time_s}`;
 		let p = await fetch(query, { method: 'GET' }); // promise
 		let o = await p.json(); // object
 		return o.times as Cal_event[]; // list of tuples
@@ -87,6 +89,8 @@
 		console.log(hour);
 		return null;
 	}
+
+	// TODO: Form is now it's own component, make date fetching from it work correctly
 </script>
 
 <h1>Welcome to StudiGo</h1>
@@ -109,58 +113,11 @@
 					something IDK
 				</h1>
 			{:else}
-				<form
-					style="text-align: center; background-color: grey; display: flex; flex-direction: column"
-					action="/booking-submit"
-					method="post"
-				>
-					<h2>
-						Book PHOTOMAFIA STUDIOS for {selected_start_time?.toLocaleDateString(
-							'en-GB',
-							{
-								weekday: 'long',
-								year: 'numeric',
-								month: 'long',
-								day: 'numeric'
-							}
-						)}
-					</h2>
-					<label for="name">Name:</label>
-					<input type="text" id="name" name="name" required />
-
-					<label for="email">Email:</label>
-					<input type="email" id="email" name="email" required />
-
-					<div
-						style="display: flex; flex-direction: column; align-items: center"
-					>
-						{#each hour_is_free as hour, i}
-							<div style="display: flex; flex-direction: row">
-								{#if hour}
-									<input
-										type="checkbox"
-										name="hour_to_book"
-										id={(i + STUDIO_OPENING_HOUR).toString()}
-										value={(i + STUDIO_OPENING_HOUR).toString()}
-									/>
-									<label
-										for={(i + STUDIO_OPENING_HOUR).toString()}
-										style="background-color: green"
-									>
-										{(i + STUDIO_OPENING_HOUR).toString()}:00
-									</label>
-								{:else if !hour}
-									<p style="background-color: red; margin: 0; padding: 0">
-										{(i + STUDIO_OPENING_HOUR).toString()}:00
-									</p>
-								{/if}
-							</div>
-						{/each}
-					</div>
-					<label for="message">Additional notes:</label>
-					<textarea id="message" name="message" />
-					<button type="submit">Submit</button>
-				</form>
+				<Booking_form
+					{selected_start_time}
+					{hour_is_free}
+					{STUDIO_OPENING_HOUR}
+				/>
 			{/if}
 		</div>
 	</div>
