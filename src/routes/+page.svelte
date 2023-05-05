@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { InlineCalendar, themes } from 'svelte-calendar';
-	import Booking_form from '$lib/components/booking_form.svelte';
+	import Booking_submit_form from '$lib/components/booking_submit_form.svelte';
 	import type { PageData } from './$types';
 	import type { Cal_event } from '$lib/types';
 
@@ -107,18 +107,12 @@
 		/>
 
 		<div style="background-color: grey">
-			{#if is_waiting_for_api}
-				<h1>
-					Waiting for dates, imagine there is a loading spinner here or
-					something IDK
-				</h1>
-			{:else}
-				<Booking_form
-					{selected_start_time}
-					{hour_is_free}
-					{STUDIO_OPENING_HOUR}
-				/>
-			{/if}
+			<Booking_submit_form
+				{selected_start_time}
+				{hour_is_free}
+				{STUDIO_OPENING_HOUR}
+				{is_waiting_for_api}
+			/>
 		</div>
 	</div>
 {:else}
