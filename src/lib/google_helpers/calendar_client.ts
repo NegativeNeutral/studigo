@@ -1,8 +1,5 @@
-import {
-	google_get_is_oauth_set,
-	google_get_calendar_api
-} from '$lib/google_helpers/oauth_client';
-import type { Cal_event } from '$lib/types';
+import { google_get_is_oauth_set, google_get_calendar_api } from '$lib/google_helpers/oauth_client';
+import type { Cal_event, Google_cal_create_event } from '$lib/types';
 import type { calendar_v3 } from 'googleapis';
 
 const CALENDAR_API = google_get_calendar_api();
@@ -23,11 +20,7 @@ const CALENDAR_API = google_get_calendar_api();
  * 	...
  * ]
  */
-export async function google_get_event_times(
-	calID: string,
-	timeMin: string,
-	timeMax: string
-) {
+export async function google_get_event_times(calID: string, timeMin: string, timeMax: string) {
 	if (!google_get_is_oauth_set()) {
 		console.log('No oauth!');
 		// TODO: Handle this instance sensibly
@@ -56,37 +49,39 @@ export async function google_get_event_times(
 
 	events.forEach((item) => {
 		times.push([
-			item.start?.dateTime
-				? (item.start?.dateTime as string)
-				: (item.start?.date as string),
-			item.end?.dateTime
-				? (item.end?.dateTime as string)
-				: (item.end?.date as string)
+			item.start?.dateTime ? (item.start?.dateTime as string) : (item.start?.date as string),
+			item.end?.dateTime ? (item.end?.dateTime as string) : (item.end?.date as string)
 		]);
 	});
 
 	return times;
 }
 
-export async function google_create_event(timeMin: string, timeMax: string) {
+/**
+ * A function to create an event in a Google Calendar.
+ * @param data
+ * @returns
+ */
+export async function google_create_event(data: Google_cal_create_event) {
 	if (!google_get_is_oauth_set()) {
 		console.log('No oauth!');
 		// TODO: Handle this instance sensibly
 		return;
 	}
 
-	console.log(`Creating Google Calendar event from ${timeMin} to ${timeMax}`);
+	console.log(`Creating event for ${data.event_times[0]} until ${data.event_times[1]} via Google API`);
 
-	// TODO: Fill this out properly
-	let idk = await CALENDAR_API.events.insert({
-		calendarId: 'lawrencewarren2@gmail.com',
+	return CALENDAR_API.events.insert({
+		calendarId: data.cal_id,
 		requestBody: {
 			start: {
-				date: timeMin
+				dateTime: data.event_times[0]
 			},
 			end: {
-				date: timeMax
-			}
+				dateTime: data.event_times[1]
+			},
+			description: data.description,
+			summary: data.title
 		}
 	});
 }

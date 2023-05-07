@@ -16,11 +16,13 @@
 	let store: any; // Hack
 
 	$: selected_start_time = $store?.selected as Date;
-	let hour_is_free = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(true);
+	let available_hours = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(true);
 	let is_waiting_for_api = false;
 
 	// When selected_start_time changes, run on_new_date_selected
-	$: on_new_times_retrieved(on_new_date_selected(selected_start_time));
+	$: (async () => {
+		available_hours = await on_new_times_retrieved(on_new_date_selected(selected_start_time));
+	})();
 
 	/**
 	 * The function to run when a new date is selected on the calendar view. It:
@@ -31,7 +33,7 @@
 	 * @returns the events for the selected day, as a Promise
 	 */
 	async function on_new_date_selected(start_time_o: Date) {
-		hour_is_free = hour_is_free.fill(true);
+		available_hours = available_hours.fill(true);
 		if (!start_time_o) {
 			return [];
 		}
@@ -60,60 +62,46 @@
 	 * 1b. Calculates the event duration, in hours
 	 * 1c. Uses these values to set the hours where an event is happening in the
 	 *     @var hour_is_free array to false
-	 * @param events_p A Promise containing a tuple of all events for the day.
+	 * @param es_p A Promise containing a tuple of all events for the day.
+	 * @returns An array of booleans indicating if each hour of a day the studio
+	 * is open is free or not.
 	 */
-	async function on_new_times_retrieved(events_p: Promise<Cal_event[]>) {
-		(await events_p).forEach((time) => {
+	async function on_new_times_retrieved(es_p: Promise<Cal_event[]>) {
+		let hour_is_free = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(true);
+		let es = await es_p;
+
+		es.forEach((e) => {
 			// Get the date objects needed
-			const start_time_o = new Date(time[0]);
-			const end_time_o = new Date(time[1]);
+			const [start, end] = e;
+			const start_time_o = new Date(start);
+			const end_time_o = new Date(end);
 
 			// Get the hours difference & the start hour as numbers
-			const event_start_hour = start_time_o.getHours();
-			const event_duration =
-				(end_time_o.getTime() - start_time_o.getTime()) / 1000 / (60 * 60);
+			const start_hour = start_time_o.getHours();
+			const e_duration = (end_time_o.getTime() - start_time_o.getTime()) / 1000 / (60 * 60);
 
-			for (
-				let i = 0;
-				i < event_duration &&
-				event_start_hour - STUDIO_OPENING_HOUR + i < STUDIO_OPERATING_HOURS;
-				i++
-			) {
-				hour_is_free[event_start_hour - STUDIO_OPENING_HOUR + i] = false;
+			for (let i = 0; i < e_duration && start_hour - STUDIO_OPENING_HOUR + i < STUDIO_OPERATING_HOURS; i++) {
+				hour_is_free[start_hour - STUDIO_OPENING_HOUR + i] = false;
 			}
 		});
+
 		is_waiting_for_api = false;
+		return hour_is_free;
 	}
-
-	function book_time_on_click(hour: number) {
-		console.log(hour);
-		return null;
-	}
-
-	// TODO: Form is now it's own component, make date fetching from it work correctly
 </script>
 
 <h1>Welcome to StudiGo</h1>
 
 {#if data.is_oauth_set}
 	<div style="display: flex; flex-direction: row">
-		<InlineCalendar
-			{theme}
-			selected={TODAY}
-			start={TODAY}
-			end={END}
-			startOfWeekIndex={MONDAY}
-			bind:store
-		/>
+		<InlineCalendar {theme} selected={TODAY} start={TODAY} end={END} startOfWeekIndex={MONDAY} bind:store />
 
-		<div style="background-color: grey">
-			<Booking_submit_form
-				{selected_start_time}
-				{hour_is_free}
-				{STUDIO_OPENING_HOUR}
-				{is_waiting_for_api}
-			/>
-		</div>
+		{#if is_waiting_for_api}
+			<h1>Waiting for dates, imagine there is a loading spinner here or something IDK</h1>
+		{:else}
+			<div style="background-color: grey" />
+			<Booking_submit_form {selected_start_time} {available_hours} {STUDIO_OPENING_HOUR} {STUDIO_OPERATING_HOURS} />
+		{/if}
 	</div>
 {:else}
 	<a href="/login">Login to view calendars</a>
