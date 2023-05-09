@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { InlineCalendar, themes } from 'svelte-calendar';
 	import Booking_submit_form from '$lib/components/booking_submit_form.svelte';
+	import { obj_is_empty } from '$lib/helpers/helpers';
+
 	import type { PageData } from './$types';
 	import type { Cal_event } from '$lib/types';
 
@@ -45,7 +47,7 @@
 		// Stringify the dates
 		const start_time_s = encodeURIComponent(start_time_o?.toISOString());
 		const end_time_s = encodeURIComponent(end_time_o?.toISOString());
-		const cal_id = encodeURIComponent('lawrencewarren2@gmail.com');
+		const cal_id = encodeURIComponent('primary'); // TODO: Read from somewhere
 
 		// Fetch query & output
 		is_waiting_for_api = true;
@@ -73,6 +75,15 @@
 		es.forEach((e) => {
 			// Get the date objects needed
 			const [start, end] = e;
+
+			// Validate that start & end are correct
+			if (start == 'error' && end == 'error') {
+				console.log('Errors!');
+				data.is_oauth_set = {};
+				console.log(data.is_oauth_set);
+				return hour_is_free;
+			}
+
 			const start_time_o = new Date(start);
 			const end_time_o = new Date(end);
 
@@ -92,7 +103,7 @@
 
 <h1>Welcome to StudiGo</h1>
 
-{#if data.is_oauth_set}
+{#if !obj_is_empty(data.is_oauth_set)}
 	<div style="display: flex; flex-direction: row">
 		<InlineCalendar {theme} selected={TODAY} start={TODAY} end={END} startOfWeekIndex={MONDAY} bind:store />
 

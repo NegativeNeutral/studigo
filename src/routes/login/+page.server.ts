@@ -1,5 +1,6 @@
-import type { PageServerLoad } from './$types';
 import { google_get_oauth_req_url } from '$lib/google_helpers/oauth_client';
+
+import type { PageServerLoad } from './$types';
 
 export const load = (({}) => {
 	return {

@@ -1,6 +1,5 @@
-import { google_get_is_oauth_set, google_get_calendar_api } from '$lib/google_helpers/oauth_client';
+import { google_get_calendar_api } from '$lib/google_helpers/oauth_client';
 import type { Cal_event, Google_cal_create_event } from '$lib/types';
-import type { calendar_v3 } from 'googleapis';
 
 const CALENDAR_API = google_get_calendar_api();
 
@@ -21,16 +20,10 @@ const CALENDAR_API = google_get_calendar_api();
  * ]
  */
 export async function google_get_event_times(calID: string, timeMin: string, timeMax: string) {
-	if (!google_get_is_oauth_set()) {
-		console.log('No oauth!');
-		// TODO: Handle this instance sensibly
-		return [];
-	}
-	console.log(`Fetching ${timeMin} from Google API`);
-	let events: calendar_v3.Schema$Event[] = [];
+	console.log(`Fetching ${timeMin} to ${timeMax} from Google API`);
 
 	try {
-		events = await CALENDAR_API.events
+		let events = await CALENDAR_API.events
 			.list({
 				calendarId: calID,
 				timeMin: timeMin,
@@ -39,39 +32,34 @@ export async function google_get_event_times(calID: string, timeMin: string, tim
 			.then((p) => {
 				return p.data.items || [];
 			});
-	} catch {
-		// TODO: Do something here - error with Google
-		console.error('FUCK BALLS');
+
+		let times: Cal_event[] = [];
+
+		events.forEach((item) => {
+			times.push([
+				item.start?.dateTime ? (item.start?.dateTime as string) : (item.start?.date as string),
+				item.end?.dateTime ? (item.end?.dateTime as string) : (item.end?.date as string)
+			]);
+		});
+
+		return times;
+	} catch (e) {
+		// Log the first line of the error
+		console.error(`StudiGo: ${(e as string).match(/^.*$/m)![0]}`);
 		return [['error', 'error']] as Cal_event[];
 	}
-
-	let times: Cal_event[] = [];
-
-	events.forEach((item) => {
-		times.push([
-			item.start?.dateTime ? (item.start?.dateTime as string) : (item.start?.date as string),
-			item.end?.dateTime ? (item.end?.dateTime as string) : (item.end?.date as string)
-		]);
-	});
-
-	return times;
 }
 
 /**
  * A function to create an event in a Google Calendar.
- * @param data
- * @returns
+ * @param data An object containing all of the information needed to create the
+ * event.
+ * @returns The object returned from the Google API.
  */
 export async function google_create_event(data: Google_cal_create_event) {
-	if (!google_get_is_oauth_set()) {
-		console.log('No oauth!');
-		// TODO: Handle this instance sensibly
-		return;
-	}
-
 	console.log(`Creating event for ${data.event_times[0]} until ${data.event_times[1]} via Google API`);
 
-	return CALENDAR_API.events.insert({
+	return await CALENDAR_API.events.insert({
 		calendarId: data.cal_id,
 		requestBody: {
 			start: {

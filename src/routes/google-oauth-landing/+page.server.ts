@@ -1,6 +1,7 @@
-import type { PageServerLoad } from '../$types';
 import { redirect } from '@sveltejs/kit';
 import { google_set_oauth2_credentials } from '$lib/google_helpers/oauth_client';
+
+import type { PageServerLoad } from '../$types';
 
 export const load = (async ({ url }) => {
 	let code = url.searchParams.get('code');

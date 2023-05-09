@@ -7,8 +7,6 @@ const GOOGLE_OAUTH2_CLIENT = new google.auth.OAuth2({
 	redirectUri: env.GCP_REDIRECT_URL
 });
 
-let is_oauth_set = false;
-
 const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
 
 export function google_get_oauth_req_url() {
@@ -21,14 +19,17 @@ export function google_get_oauth_req_url() {
 }
 
 export function google_get_is_oauth_set() {
-	return is_oauth_set;
+	return GOOGLE_OAUTH2_CLIENT.credentials;
 }
 
 export async function google_set_oauth2_credentials(code: string) {
 	const { tokens } = await GOOGLE_OAUTH2_CLIENT.getToken(code);
 	GOOGLE_OAUTH2_CLIENT.setCredentials(tokens);
-	is_oauth_set = true;
 	// TODO: Save tokens.access_token & tokens.refresh_token to a database
+}
+
+export async function google_remove_oauth2_credentials() {
+	GOOGLE_OAUTH2_CLIENT.revokeCredentials();
 }
 
 export function google_get_calendar_api() {
