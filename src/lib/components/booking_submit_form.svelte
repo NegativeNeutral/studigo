@@ -1,10 +1,16 @@
 <script lang="ts">
+	import { loadStripe } from '@stripe/stripe-js';
+	import { Elements, PaymentElement } from 'svelte-stripe';
 	import type { Cal_event } from '$lib/types';
+	import { onMount } from 'svelte';
+	import { env } from '$env/dynamic/public';
+	import type { Stripe } from '@stripe/stripe-js';
 
 	export let STUDIO_OPERATING_HOURS: number;
 	export let STUDIO_OPENING_HOUR: number;
 	export let selected_start_time: Date;
 	export let available_hours: boolean[];
+
 	let formatted_time = selected_start_time?.toLocaleDateString('en-GB', {
 		weekday: 'long',
 		year: 'numeric',
@@ -15,6 +21,7 @@
 	let checkboxes = new Array<HTMLInputElement>(STUDIO_OPERATING_HOURS);
 	let is_checked = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(false);
 	let booking_has_submit = false;
+	let stripe: Stripe;
 
 	// Runs when is_checked updates
 	$: update_checkboxes(is_checked);
@@ -97,6 +104,10 @@
 			// TODO: Handle error - show toast?
 		}
 	}
+
+	onMount(async () => {
+		stripe = (await loadStripe(env.PUBLIC_STRIPE_KEY as string)) as Stripe;
+	});
 </script>
 
 {#if available_hours.every((hour) => hour == false)}
@@ -147,4 +158,10 @@
 		<textarea id="message" name="message" />
 		<button type="submit">Submit</button>
 	</form>
+{/if}
+
+{#if stripe}
+	<Elements {stripe}>
+		<PaymentElement />
+	</Elements>
 {/if}
