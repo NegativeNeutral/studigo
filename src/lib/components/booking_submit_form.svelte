@@ -96,15 +96,13 @@
 			`${data.message ? `Their message: '<i>${data.message}</i>'` : 'They left no extra message 😔'}`
 		].join('\n');
 
-		let qps = [
+		return [
 			`cal_id=${encodeURIComponent(cal_id)}`,
 			`full_name=${encodeURIComponent(full_name)}`,
 			`title=${encodeURIComponent(title)}`,
 			`description=${encodeURIComponent(description)}`,
 			`event_times=${encodeURIComponent(time.toString())}`
-		];
-
-		return qps.join('&');
+		].join('&');
 	}
 
 	/**
@@ -167,11 +165,3 @@
 		<button type="submit">Submit</button>
 	</form>
 {/if}
-
-<!--
-	{#if stripe}
-	<Elements {stripe}>
-		<PaymentElement />
-	</Elements>
-	{/if}
--->

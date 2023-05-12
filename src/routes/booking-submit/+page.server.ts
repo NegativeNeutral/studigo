@@ -54,8 +54,8 @@ title = ${title}
 
 	// create the payment intent
 	const payment_intent = await STRIPE.paymentIntents.create({
-		amount: 2000,
-		currency: 'usd',
+		amount: 100,
+		currency: 'gbp',
 		automatic_payment_methods: {
 			enabled: true
 		}
