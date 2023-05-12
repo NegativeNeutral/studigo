@@ -1,8 +1,9 @@
 import Stripe from 'stripe';
 import { SECRET_STRIPE_KEY } from '$env/static/private';
+import type { PageServerLoad } from './$types';
 
 // initialize Stripe
-const stripe = new Stripe(SECRET_STRIPE_KEY, {
+const STRIPE = new Stripe(SECRET_STRIPE_KEY, {
 	/**
 	 * This library's types only reflect the latest API version.
 	 *
@@ -36,22 +37,39 @@ const stripe = new Stripe(SECRET_STRIPE_KEY, {
 	// host?: string; // TODO: Define this
 });
 
-// handle POST /create-payment-intent
-export async function POST() {
+export const load = (async ({ url, fetch }) => {
+	const cal_id = url.searchParams.get('cal_id') || '';
+	const event_times = url.searchParams.get('event_times') || '';
+	const description = url.searchParams.get('description') || '';
+	const title = url.searchParams.get('title') || '';
+	const full_name = url.searchParams.get('full_name') || '';
+
+	console.log(`
+cal_id = ${cal_id}
+event_times = ${event_times}
+description = ${description}
+full_name = ${full_name}
+title = ${title}
+	`);
+
 	// create the payment intent
-	const paymentIntent = await stripe.paymentIntents.create({
+	const payment_intent = await STRIPE.paymentIntents.create({
 		amount: 2000,
-		// note, for some EU-only payment methods it must be EUR
 		currency: 'usd',
-		// specify what payment methods are allowed
-		// can be card, sepa_debit, ideal, etc...
-		payment_method_types: ['card']
+		automatic_payment_methods: {
+			enabled: true
+		}
 	});
 
 	// return the clientSecret to the client
 	return {
-		body: {
-			clientSecret: paymentIntent.client_secret
+		client_secret: payment_intent.client_secret,
+		cal_data: {
+			cal_id: cal_id,
+			event_times: event_times,
+			description: description,
+			full_name: full_name,
+			title: title
 		}
 	};
-}
+}) satisfies PageServerLoad;

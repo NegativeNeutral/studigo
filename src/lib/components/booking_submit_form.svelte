@@ -1,10 +1,5 @@
 <script lang="ts">
-	import { loadStripe } from '@stripe/stripe-js';
-	import { Elements, PaymentElement } from 'svelte-stripe';
 	import type { Cal_event } from '$lib/types';
-	import { onMount } from 'svelte';
-	import { env } from '$env/dynamic/public';
-	import type { Stripe } from '@stripe/stripe-js';
 
 	export let STUDIO_OPERATING_HOURS: number;
 	export let STUDIO_OPENING_HOUR: number;
@@ -21,7 +16,6 @@
 	let checkboxes = new Array<HTMLInputElement>(STUDIO_OPERATING_HOURS);
 	let is_checked = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(false);
 	let booking_has_submit = false;
-	let stripe: Stripe;
 
 	// Runs when is_checked updates
 	$: update_checkboxes(is_checked);
@@ -60,20 +54,22 @@
 	}
 
 	/**
-	 * Intercepts the form submit and manipulates the request body before sending.
-	 * @param e The submit event
+	 * This function takes in the form data and converts it to query string
+	 * parameters that will be expected by the receiving route.
+	 * @param fd Form data
+	 * @returns Query parameters
+	 * @todo Tidy up this damn function.
 	 */
-	async function on_submit(e: SubmitEvent) {
-		let time: Cal_event = ['', ''];
+	function form_data_to_qp(fd: FormData) {
 		let i = 0;
 		let t = new Date(selected_start_time);
+		let time: Cal_event = ['', ''];
 		let data: { [key: string]: Cal_event | FormDataEntryValue } = {};
-		data['cal_id'] = 'primary'; // TODO: Read this value from somewhere
 
 		// Loop through form data:
 		// * if it was a checkbox, add the date time string
 		// * else add immediately
-		for (let [k, v] of new FormData(e.target as HTMLFormElement)) {
+		for (let [k, v] of fd) {
 			if (/^checkbox/.test(k)) {
 				t.setHours(parseInt(k.replace('checkbox_', '')) + i);
 				time[i] = t.toISOString();
@@ -89,25 +85,37 @@
 			time[1] = t.toISOString();
 		}
 
-		data['event_times'] = time;
+		const cal_id = 'primary'; // TODO: Read this value from somewhere
+		const full_name = `${data.firstname} ${data.surname}`;
+		const title = `BOOKING - ${full_name}`;
+		const description = [
+			`<b>${full_name}</b> booked PHOTOMAFIA STUDIOS via the StudiGo app 🎉`,
+			``,
+			`Contact Phone Number: <b>${data.phone}</b>`,
+			`Contact Email: <b>${data.email}</b>`,
+			`${data.message ? `Their message: '<i>${data.message}</i>'` : 'They left no extra message 😔'}`
+		].join('\n');
 
-		booking_has_submit = true;
-		let resp = await fetch('/booking-submit', {
-			method: 'POST',
-			body: JSON.stringify(data)
-		});
-		booking_has_submit = false;
+		let qps = [
+			`cal_id=${encodeURIComponent(cal_id)}`,
+			`full_name=${encodeURIComponent(full_name)}`,
+			`title=${encodeURIComponent(title)}`,
+			`description=${encodeURIComponent(description)}`,
+			`event_times=${encodeURIComponent(time.toString())}`
+		];
 
-		if (resp.status == 200) {
-			window.location.assign('/booking-submit');
-		} else {
-			// TODO: Handle error - show toast?
-		}
+		return qps.join('&');
 	}
 
-	onMount(async () => {
-		stripe = (await loadStripe(env.PUBLIC_STRIPE_KEY as string)) as Stripe;
-	});
+	/**
+	 * Intercepts the form submit and manipulates the request body before sending.
+	 * @param e The submit event
+	 */
+	async function on_submit(e: SubmitEvent) {
+		const qp = form_data_to_qp(new FormData(e.target as HTMLFormElement));
+		const url_root = '/booking-submit';
+		window.location.assign(`${url_root}?${qp}`);
+	}
 </script>
 
 {#if available_hours.every((hour) => hour == false)}
@@ -160,8 +168,10 @@
 	</form>
 {/if}
 
-{#if stripe}
+<!--
+	{#if stripe}
 	<Elements {stripe}>
 		<PaymentElement />
 	</Elements>
-{/if}
+	{/if}
+-->
