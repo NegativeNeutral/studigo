@@ -18,12 +18,18 @@
 			redirect: 'if_required'
 		});
 
+		console.log(result);
+
 		if (result.error) {
 			console.error('Booooo, error');
 			console.error(result.error);
 		} else {
 			console.log('Yoooo it liked, worked');
 			// TODO: Submit form to Google
+			// POST data.cal_data to some route
+			// That route will pass data.cal_data to the Google helper function
+			// Creates booking
+			// Bosh
 		}
 	}
 
