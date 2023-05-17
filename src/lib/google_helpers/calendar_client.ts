@@ -23,7 +23,7 @@ export async function google_get_event_times(calID: string, timeMin: string, tim
 	console.log(`Fetching ${timeMin} to ${timeMax} from Google API`);
 
 	try {
-		let events = await CALENDAR_API.events
+		const EVENTS = await CALENDAR_API.events
 			.list({
 				calendarId: calID,
 				timeMin: timeMin,
@@ -33,19 +33,22 @@ export async function google_get_event_times(calID: string, timeMin: string, tim
 				return p.data.items || [];
 			});
 
-		let times: Cal_event[] = [];
-
-		events.forEach((item) => {
-			times.push([
+		return EVENTS.map((item) => {
+			return [
 				item.start?.dateTime ? (item.start?.dateTime as string) : (item.start?.date as string),
 				item.end?.dateTime ? (item.end?.dateTime as string) : (item.end?.date as string)
-			]);
+			] as Cal_event;
 		});
-
-		return times;
 	} catch (e) {
+		const RETRIEVE_FIRST_LINE = /^.*$/m;
+		const ERROR = (e as string).match(RETRIEVE_FIRST_LINE);
 		// Log the first line of the error
-		console.error(`StudiGo: ${(e as string).match(/^.*$/m)![0]}`);
+		if (ERROR) {
+			console.error(`StudiGo: ${ERROR[0]}`);
+		} else {
+			console.error(`StudiGo: ${e}`);
+		}
+
 		return [['error', 'error']] as Cal_event[];
 	}
 }

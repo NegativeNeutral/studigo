@@ -1,9 +1,9 @@
 import Stripe from 'stripe';
-import { SECRET_STRIPE_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import type { PageServerLoad } from './$types';
 
 // initialize Stripe
-const STRIPE = new Stripe(SECRET_STRIPE_KEY, {
+const STRIPE = new Stripe(env.SECRET_STRIPE_KEY as string, {
 	/**
 	 * This library's types only reflect the latest API version.
 	 *
@@ -25,8 +25,8 @@ const STRIPE = new Stripe(SECRET_STRIPE_KEY, {
 	typescript: true,
 
 	/**
-	 * Enables automatic network retries with exponential backoff, up to the specified number of retries (default 0).
-	 * Idempotency keys - https://stripe.com/docs/api/idempotent_requests - are added where appropriate to prevent duplication.
+	 * Enables automatic network retries with exponential back off, up to the specified number of retries (default 0).
+	 * Impotency keys - https://stripe.com/docs/api/idempotent_requests - are added where appropriate to prevent duplication.
 	 * @docs https://github.com/stripe/stripe-node#network-retries
 	 */
 	maxNetworkRetries: 5
