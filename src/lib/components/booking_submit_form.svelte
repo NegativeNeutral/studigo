@@ -1,10 +1,15 @@
 <script lang="ts">
 	import type { Cal_event } from '$lib/types';
+	import { construct_qps, booking_description_builder } from '$lib/helpers/helpers';
 
 	export let STUDIO_OPERATING_HOURS: number;
 	export let STUDIO_OPENING_HOUR: number;
 	export let selected_start_time: Date;
 	export let available_hours: boolean[];
+
+	let checkboxes = new Array<HTMLInputElement>(STUDIO_OPERATING_HOURS);
+	let is_checked = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(false);
+	let booking_has_submit = false;
 
 	let formatted_time = selected_start_time?.toLocaleDateString('en-GB', {
 		weekday: 'long',
@@ -12,13 +17,6 @@
 		month: 'long',
 		day: 'numeric'
 	});
-
-	let checkboxes = new Array<HTMLInputElement>(STUDIO_OPERATING_HOURS);
-	let is_checked = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(false);
-	let booking_has_submit = false;
-
-	// Runs when is_checked updates
-	$: update_checkboxes(is_checked);
 
 	/**
 	 * Updates the state of the checkboxes (whether they disabled or not) based on
@@ -64,7 +62,7 @@
 		let i = 0;
 		let t = new Date(selected_start_time);
 		let time: Cal_event = ['', ''];
-		let data: { [key: string]: Cal_event | FormDataEntryValue } = {};
+		let data: { [key: string]: FormDataEntryValue } = {};
 
 		// Loop through form data:
 		// * if it was a checkbox, add the date time string
@@ -85,24 +83,25 @@
 			time[1] = t.toISOString();
 		}
 
-		const cal_id = 'primary'; // TODO: Read this value from somewhere
-		const full_name = `${data.firstname} ${data.surname}`;
-		const title = `BOOKING - ${full_name}`;
-		const description = [
-			`<b>${full_name}</b> booked PHOTOMAFIA STUDIOS via the StudiGo app 🎉`,
-			``,
-			`Contact Phone Number: <b>${data.phone}</b>`,
-			`Contact Email: <b>${data.email}</b>`,
-			`${data.message ? `Their message: '<i>${data.message}</i>'` : 'They left no extra message 😔'}`
-		].join('\n');
+		const FULL_NAME = `${data.firstname} ${data.surname}`;
+		const STUDIO_NAME = 'PHOTOMAFIA STUDIOS'; // TODO: Read this from somewhere
 
-		return [
-			`cal_id=${encodeURIComponent(cal_id)}`,
-			`full_name=${encodeURIComponent(full_name)}`,
-			`title=${encodeURIComponent(title)}`,
-			`description=${encodeURIComponent(description)}`,
-			`event_times=${encodeURIComponent(time.toString())}`
-		].join('&');
+		const QPS = {
+			cal_id: 'primary', // TODO: Read this value from somewhere
+			title: `BOOKING - ${FULL_NAME}`,
+			start_time: time[0],
+			end_time: time[1],
+			studio_name: STUDIO_NAME,
+			description: booking_description_builder(
+				FULL_NAME,
+				STUDIO_NAME,
+				data.phone.toString(),
+				data.email.toString(),
+				data.message.toString()
+			)
+		};
+
+		return construct_qps(QPS);
 	}
 
 	/**
@@ -111,9 +110,12 @@
 	 */
 	async function on_submit(e: SubmitEvent) {
 		const qp = form_data_to_qp(new FormData(e.target as HTMLFormElement));
-		const url_root = '/booking-submit';
+		const url_root = '/pay';
 		window.location.assign(`${url_root}?${qp}`);
 	}
+
+	// Runs when is_checked updates
+	$: update_checkboxes(is_checked);
 </script>
 
 {#if available_hours.every((hour) => hour == false)}
@@ -123,8 +125,6 @@
 {:else}
 	<form
 		style="text-align: center; background-color: grey; display: flex; flex-direction: column"
-		action="/booking-submit"
-		method="POST"
 		on:submit|preventDefault={on_submit}
 	>
 		<h2>

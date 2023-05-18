@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { google_get_event_times } from '$lib/google_helpers/calendar_client';
-import { obj_is_empty } from '$lib/helpers/helpers';
+import { obj_is_empty, deconstruct_qps } from '$lib/helpers/helpers';
 import { google_get_is_oauth_set } from '$lib/google_helpers/oauth_client';
 
 import type { RequestHandler } from './$types';
@@ -11,9 +11,7 @@ import type { Cal_event } from '$lib/types';
  * @returns a Response object, containing a JSON object with the requested data
  */
 export const GET = (async (event) => {
-	const calID = event.url.searchParams.get('calID') || '';
-	const dateMin = event.url.searchParams.get('dateMin') || '';
-	const dateMax = event.url.searchParams.get('dateMax') || '';
+	const QPS = deconstruct_qps(event.url);
 	let times: Cal_event[];
 
 	// If object is empty, return error
@@ -21,7 +19,7 @@ export const GET = (async (event) => {
 		console.error('StudiGo: No OAuth configured!');
 		times = [['error', 'error']];
 	} else {
-		times = await google_get_event_times(calID, dateMin, dateMax);
+		times = await google_get_event_times(QPS.cal_id, QPS.date_min, QPS.date_max);
 	}
 
 	return json({ times: times });
