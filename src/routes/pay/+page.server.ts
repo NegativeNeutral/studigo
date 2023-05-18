@@ -43,7 +43,7 @@ export const load = (async ({ url }) => {
 
 	// create the payment intent
 	const payment_intent = await STRIPE.paymentIntents.create({
-		amount: 100, // TODO: Set dynamic amount
+		amount: parseInt(QPS.booking_price),
 		currency: 'gbp',
 		automatic_payment_methods: {
 			enabled: true

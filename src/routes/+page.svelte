@@ -8,12 +8,15 @@
 
 	export let data: PageData;
 	const { dark: theme } = themes;
+
 	const MONDAY = 1;
 	const TODAY = new Date();
 	const END = new Date();
 	END.setMonth(END.getMonth() + 3);
+
 	const STUDIO_OPENING_HOUR = 9; // Open at 9am
 	const STUDIO_OPERATING_HOURS = 8; // Operates from 9am until 5pm
+	const HOURLY_RATE = 5500;
 
 	let store: any; // Hack
 
@@ -111,7 +114,13 @@
 			<h1>Waiting for dates, imagine there is a loading spinner here or something IDK</h1>
 		{:else}
 			<div style="background-color: grey" />
-			<Booking_submit_form {selected_start_time} {available_hours} {STUDIO_OPENING_HOUR} {STUDIO_OPERATING_HOURS} />
+			<Booking_submit_form
+				{selected_start_time}
+				{available_hours}
+				{STUDIO_OPENING_HOUR}
+				{STUDIO_OPERATING_HOURS}
+				{HOURLY_RATE}
+			/>
 		{/if}
 	</div>
 {:else}

@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { loadStripe } from '@stripe/stripe-js';
 	import { env } from '$env/dynamic/public';
+	import { decimal_currency_subunit_to_unit } from '$lib/helpers/helpers';
 	import { Elements, PaymentElement } from 'svelte-stripe';
 	import { onMount } from 'svelte';
 	import type { Stripe, StripeElements } from '@stripe/stripe-js';
 
-	import type { PageData } from '../$types';
+	import type { PageData } from './$types';
 	import { construct_qps } from '$lib/helpers/helpers';
 	export let data: PageData;
 
@@ -54,7 +55,7 @@
 <h1>Please pay for your booking</h1>
 
 {#if stripe && data.client_secret}
-	<h2>The sum to pay is {data.amount}</h2>
+	<h2>The sum to pay is £{decimal_currency_subunit_to_unit(data.amount)}</h2>
 	<form on:submit|preventDefault={form_submit}>
 		<Elements {stripe} clientSecret={data.client_secret} bind:elements>
 			<PaymentElement />

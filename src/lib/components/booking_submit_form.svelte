@@ -1,15 +1,17 @@
 <script lang="ts">
 	import type { Cal_event } from '$lib/types';
-	import { construct_qps, booking_description_builder } from '$lib/helpers/helpers';
+	import { decimal_currency_subunit_to_unit, construct_qps, booking_description_builder } from '$lib/helpers/helpers';
 
 	export let STUDIO_OPERATING_HOURS: number;
 	export let STUDIO_OPENING_HOUR: number;
+	export let HOURLY_RATE: number;
 	export let selected_start_time: Date;
 	export let available_hours: boolean[];
 
 	let checkboxes = new Array<HTMLInputElement>(STUDIO_OPERATING_HOURS);
 	let is_checked = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(false);
 	let booking_has_submit = false;
+	let rate_multiplier = 0;
 
 	let formatted_time = selected_start_time?.toLocaleDateString('en-GB', {
 		weekday: 'long',
@@ -28,6 +30,7 @@
 	 * @param cs A boolean array indicating if a checkbox is clicked or not.
 	 */
 	function update_checkboxes(cs: boolean[]) {
+		let mul = 0;
 		// Make all selectable BUT unavailable hours
 		if (!cs.filter((v) => v == true).length) {
 			for (let i = 0; i < checkboxes.length; i++) {
@@ -40,6 +43,7 @@
 		else {
 			for (let i = 0; i < cs.length; i++) {
 				checkboxes[i]?.setAttribute('disabled', 'true');
+				mul += cs[i] ? 1 : 0;
 
 				if (
 					((cs[i + 1] && !cs[i]) || (cs[i] && !cs[i - 1]) || (!cs[i + 1] && cs[i]) || (!cs[i] && cs[i - 1])) &&
@@ -49,6 +53,8 @@
 				}
 			}
 		}
+
+		rate_multiplier = mul;
 	}
 
 	/**
@@ -92,6 +98,7 @@
 			start_time: time[0],
 			end_time: time[1],
 			studio_name: STUDIO_NAME,
+			booking_price: HOURLY_RATE * rate_multiplier,
 			description: booking_description_builder(
 				FULL_NAME,
 				STUDIO_NAME,
@@ -163,5 +170,7 @@
 		<label for="message">Additional notes:</label>
 		<textarea id="message" name="message" />
 		<button type="submit">Submit</button>
+
+		<h4>Cost: £{decimal_currency_subunit_to_unit(HOURLY_RATE * rate_multiplier)}</h4>
 	</form>
 {/if}
