@@ -2,9 +2,11 @@
 	import type { Cal_event } from '$lib/types';
 	import { decimal_currency_subunit_to_unit, construct_qps, booking_description_builder } from '$lib/helpers/helpers';
 
-	export let STUDIO_OPERATING_HOURS: number; // TODO: Read from database
-	export let STUDIO_OPENING_HOUR: number; // TODO: Read from database
-	export let HOURLY_RATE: number; // TODO: Read from database
+	export let STUDIO_OPERATING_HOURS: number;
+	export let STUDIO_OPENING_HOUR: number;
+	export let HOURLY_RATE: number;
+	export let STUDIO_NAME: string;
+	export let CAL_ID: string;
 
 	export let selected_start_time: Date;
 	export let available_hours: boolean[];
@@ -111,10 +113,9 @@
 		}
 
 		const FULL_NAME = `${data.firstname} ${data.surname}`;
-		const STUDIO_NAME = 'PHOTOMAFIA STUDIOS'; // TODO: Read this from somewhere
 
 		const QPS = {
-			cal_id: 'primary', // TODO: Read this value from somewhere
+			cal_id: CAL_ID,
 			title: `BOOKING - ${FULL_NAME}`,
 			start_time: time[0],
 			end_time: time[1],

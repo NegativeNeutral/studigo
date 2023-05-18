@@ -17,9 +17,11 @@
 	const END = new Date();
 	END.setMonth(END.getMonth() + 3);
 
-	const STUDIO_OPENING_HOUR = 9; // Open at 9am
-	const STUDIO_OPERATING_HOURS = 8; // Operates from 9am until 5pm
-	const HOURLY_RATE = 5500;
+	const STUDIO_OPENING_HOUR = data.studio_opening_hour; // Open at 9am
+	const STUDIO_OPERATING_HOURS = data.studio_operating_hours; // Operates from 9am until 5pm
+	const HOURLY_RATE = data.hourly_rate;
+	const STUDIO_NAME = data.studio_name;
+	const CAL_ID = data.cal_id;
 
 	let store: any; // Hack
 
@@ -54,7 +56,7 @@
 
 		// Fetch query & output
 		const QPS = {
-			cal_id: 'primary', // TODO: Read from somewhere
+			cal_id: CAL_ID,
 			date_min: start_time_o?.toISOString(),
 			date_max: end_time_o?.toISOString()
 		};
@@ -123,6 +125,8 @@
 				{STUDIO_OPENING_HOUR}
 				{STUDIO_OPERATING_HOURS}
 				{HOURLY_RATE}
+				{STUDIO_NAME}
+				{CAL_ID}
 			/>
 		{/if}
 	</div>
