@@ -63,7 +63,7 @@ export function booking_description_builder(
 		``,
 		`Contact Phone Number: <b>${phone_number}</b>`,
 		`Contact Email: <b>${email}</b>`,
-		`Their message: '<i>${message}</i>'`
+		`Their message: '<i>${message === '' ? 'They left no extra message 😔' : message}</i>'`
 	].join('\n');
 }
 
@@ -73,8 +73,8 @@ export function booking_description_builder(
  *
  * For example, given an input of 5000, it will return "50.00".
  * @param num A number representing the lowest denomination of a currency. If we
- * were talking about the US currency, the input number represents scents: to
- * get a string formatted to appear as one dollar ("1.00") you must input 100.
+ * were talking about the US currency, the input number represents cents: to get
+ * a string formatted to appear as one dollar ("1.00") you must input 100.
  * @returns A currency-formatted string, always to 2 decimal places.
  */
 export function decimal_currency_subunit_to_unit(num: number) {

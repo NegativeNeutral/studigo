@@ -41,7 +41,7 @@ export async function google_get_event_times(calID: string, timeMin: string, tim
 		});
 	} catch (e) {
 		const RETRIEVE_FIRST_LINE = /^.*$/m;
-		const ERROR = (e as string).match(RETRIEVE_FIRST_LINE);
+		const ERROR = String(e).match(RETRIEVE_FIRST_LINE);
 		// Log the first line of the error
 		if (ERROR) {
 			console.error(`StudiGo: ${ERROR[0]}`);

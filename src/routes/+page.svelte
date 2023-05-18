@@ -10,7 +10,10 @@
 	const { dark: theme } = themes;
 
 	const MONDAY = 1;
-	const TODAY = new Date();
+	const TOMORROW = new Date();
+	TOMORROW.setDate(TOMORROW.getDate() + 1);
+	TOMORROW.setHours(0, 0, 0, 0);
+
 	const END = new Date();
 	END.setMonth(END.getMonth() + 3);
 
@@ -108,7 +111,7 @@
 
 {#if !obj_is_empty(data.is_oauth_set)}
 	<div style="display: flex; flex-direction: row">
-		<InlineCalendar {theme} selected={TODAY} start={TODAY} end={END} startOfWeekIndex={MONDAY} bind:store />
+		<InlineCalendar {theme} selected={TOMORROW} start={TOMORROW} end={END} startOfWeekIndex={MONDAY} bind:store />
 
 		{#if is_waiting_for_api}
 			<h1>Waiting for dates, imagine there is a loading spinner here or something IDK</h1>
