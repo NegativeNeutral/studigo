@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { google_set_oauth2_credentials } from '$lib/google_helpers/oauth_client';
+import { google_set_oauth2_credentials } from '$lib/helpers/google/oauth_client';
 import { deconstruct_qps } from '$lib/helpers/helpers';
 
 import type { PageServerLoad } from '../$types';

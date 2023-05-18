@@ -1,4 +1,4 @@
-import { google_get_oauth_req_url } from '$lib/google_helpers/oauth_client';
+import { google_get_oauth_req_url } from '$lib/helpers/google/oauth_client';
 
 import type { PageServerLoad } from './$types';
 

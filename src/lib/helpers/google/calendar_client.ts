@@ -1,4 +1,4 @@
-import { google_get_calendar_api } from '$lib/google_helpers/oauth_client';
+import { google_get_calendar_api } from '$lib/helpers/google/oauth_client';
 import type { Cal_event, Google_cal_create_event } from '$lib/types';
 
 const CALENDAR_API = google_get_calendar_api();

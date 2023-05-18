@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
-import { google_get_event_times } from '$lib/google_helpers/calendar_client';
+import { google_get_event_times } from '$lib/helpers/google/calendar_client';
 import { obj_is_empty, deconstruct_qps } from '$lib/helpers/helpers';
-import { google_get_is_oauth_set } from '$lib/google_helpers/oauth_client';
+import { google_get_is_oauth_set } from '$lib/helpers/google/oauth_client';
 
 import type { RequestHandler } from './$types';
 import type { Cal_event } from '$lib/types';
