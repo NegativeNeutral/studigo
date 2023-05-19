@@ -10,6 +10,6 @@ export const load = (({ url }) => {
 		studio_operating_hours: 8,
 		hourly_rate: 5500,
 		studio_name: 'PHOTOMAFIA STUDIOS',
-		cal_id: 'default'
+		cal_id: 'primary'
 	};
 }) satisfies PageServerLoad;
