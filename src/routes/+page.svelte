@@ -131,5 +131,5 @@
 		{/if}
 	</div>
 {:else}
-	<a href="/login">Login to view calendars</a>
+	<h2><i>(Something has gone wrong here...)</i></h2>
 {/if}

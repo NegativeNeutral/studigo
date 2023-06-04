@@ -1,5 +1,6 @@
 import { google } from 'googleapis';
 import { env } from '$env/dynamic/private';
+import { vercel_save_refresh_token } from '$lib/helpers/vercel/postgres_client';
 
 const GOOGLE_OAUTH2_CLIENT = new google.auth.OAuth2({
 	clientSecret: env.GCP_CLIENT_SECRET,
@@ -28,16 +29,18 @@ export function google_get_oauth_req_url() {
  * @returns `true` if OAuth is set, otherwise `false`
  */
 export function google_get_is_oauth_set() {
-	return GOOGLE_OAUTH2_CLIENT.credentials;
+	return !!GOOGLE_OAUTH2_CLIENT.credentials;
 }
 
 /**
- * Set the Google OAuth credentials.
+ * Set the Google OAuth credentials. If a refresh_token is generated, save this
+ * to long term storage.
  * @param code The OAuth code returned once a user has granted permissions. Used
  * to generate OAuth tokens
  */
 export async function google_set_oauth2_credentials(code: string) {
 	const { tokens } = await GOOGLE_OAUTH2_CLIENT.getToken(code);
+	vercel_save_refresh_token(tokens.refresh_token);
 	GOOGLE_OAUTH2_CLIENT.setCredentials(tokens);
 	// TODO: Save tokens.access_token & tokens.refresh_token to a database
 }
