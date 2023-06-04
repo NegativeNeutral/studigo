@@ -37,6 +37,7 @@
 	"dependencies": {
 		"@stripe/stripe-js": "^1.53.0",
 		"@sveltejs/adapter-vercel": "^2.4.3",
+		"@vercel/postgres": "^0.3.0",
 		"googleapis": "^118.0.0",
 		"svelte-calendar": "^3.1.6"
 	}
