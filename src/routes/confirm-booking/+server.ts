@@ -20,7 +20,7 @@ export const POST = (async (event) => {
 	};
 
 	// If object is empty, return error
-	if (await google_get_is_oauth_set()) {
+	if (!google_get_is_oauth_set()) {
 		console.error('StudiGo: No OAuth configured!');
 		// TODO: Figure out what is even returned
 		return json({ resp: undefined });

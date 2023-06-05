@@ -16,7 +16,7 @@ export const GET = (async (event) => {
 	const QPS = deconstruct_qps(event.url);
 
 	// If object is empty, return error
-	if (!is_first_load && google_get_is_oauth_set()) {
+	if (!is_first_load && !google_get_is_oauth_set()) {
 		console.error('StudiGo: No OAuth configured!');
 		return json({ times: [['error', 'error']] as Cal_event[] });
 	}

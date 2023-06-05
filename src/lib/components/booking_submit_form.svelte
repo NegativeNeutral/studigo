@@ -148,7 +148,7 @@
 </script>
 
 {#if available_hours.every((hour) => hour == false)}
-	<h1>PHOTOMAFIA STUDIOS is unavailable on {formatted_time}</h1>
+	<h1><b>{STUDIO_NAME}</b> is unavailable on {formatted_time}</h1>
 {:else if booking_has_submit}
 	<h1>Submitting booking form... imagine a loading spinner...</h1>
 {:else}
@@ -157,7 +157,7 @@
 		on:submit|preventDefault={on_submit}
 	>
 		<h2>
-			Book PHOTOMAFIA STUDIOS for {formatted_time}
+			Book <b>{STUDIO_NAME}</b> for {formatted_time}
 		</h2>
 		<label for="firstname">First Name(s):</label>
 		<input type="text" bind:value={first_name} name="firstname" required />
