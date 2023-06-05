@@ -105,37 +105,27 @@ export function convert_qps_to_studio_owner(qps: { [key: string]: string }) {
 
 	for (const k in qps) {
 		switch (k) {
+			// Strings
 			case 'first_name':
-				OWNERS[k] = qps[k];
-				break;
 			case 'surname':
-				OWNERS[k] = qps[k];
-				break;
 			case 'studio_name':
-				OWNERS[k] = qps[k];
-				break;
 			case 'studio_address':
-				OWNERS[k] = qps[k];
-				break;
 			case 'studio_email':
-				OWNERS[k] = qps[k];
-				break;
 			case 'studio_phone_number':
-				OWNERS[k] = qps[k];
-				break;
-			case 'studio_rate':
-				OWNERS[k] = parseInt(qps[k]) * 100;
-				break;
-			case 'studio_opening_hour':
-				OWNERS[k] = parseInt(qps[k]);
-				break;
-			case 'studio_operating_hours':
-				OWNERS[k] = parseInt(qps[k]);
-				break;
 			case 'google_oauth_refresh_token':
 				OWNERS[k] = qps[k];
 				break;
+			// Parsing integers
+			case 'studio_opening_hour':
+			case 'studio_operating_hours':
+				OWNERS[k] = parseInt(qps[k]);
+				break;
+			// Studio rate - must be multiplied by 100
+			case 'studio_rate':
+				OWNERS[k] = parseInt(qps[k]) * 100;
+				break;
 			default:
+				console.error(`${k} - ${qps[k]}`);
 				throw new Error("We've got a type error here");
 		}
 	}

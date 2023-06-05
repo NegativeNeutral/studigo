@@ -11,18 +11,18 @@
 
 		for (let [k, v] of FD) {
 			switch (k) {
-				case 'opening_hour':
+				case 'studio_opening_hour':
 					data[k] = parseInt(v as string).toString();
 					break;
-				case 'closing_hour':
-					const v2 = parseInt(FD.get('opening_hour') as string);
+				case 'studio_closing_hour':
+					const v2 = parseInt(FD.get('studio_opening_hour') as string);
 					const v1 = parseInt(v as string);
 					const vF = v1 - v2;
 					if (vF <= 1) {
 						// TODO: Give visual feedback in this case
 						return;
 					}
-					data['operating_hours'] = vF.toString();
+					data['studio_operating_hours'] = vF.toString();
 					break;
 
 				default:
@@ -30,6 +30,8 @@
 					break;
 			}
 		}
+
+		console.log(data);
 
 		const URL = `sign-up?${construct_qps(data)}`;
 		let p = await fetch(URL, { method: 'GET' }); // promise
@@ -59,17 +61,17 @@
 	<label for="studio_rate">Studio Hourly Rate (in pounds):</label>
 	<input type="text" name="studio_rate" required />
 
-	<label for="email">Studio Contact Email:</label>
-	<input type="email" name="email" required />
+	<label for="studio_email">Studio Contact Email:</label>
+	<input type="email" name="studio_email" required />
 
-	<label for="phone">Studio Phone Number:</label>
-	<input type="tel" name="phone" required />
+	<label for="studio_phone_number">Studio Phone Number:</label>
+	<input type="tel" name="studio_phone_number" required />
 
-	<label for="opening_hour">Studio Opening Hour (24h):</label>
-	<input type="text" name="opening_hour" required />
+	<label for="studio_opening_hour">Studio Opening Hour (24h):</label>
+	<input type="text" name="studio_opening_hour" required />
 
-	<label for="closing_hour">Studio Closing Hour (24h):</label>
-	<input type="text" name="closing_hour" required />
+	<label for="studio_closing_hour">Studio Closing Hour (24h):</label>
+	<input type="text" name="studio_closing_hour" required />
 
 	<div id="submit_row">
 		<button type="submit">Submit</button>
