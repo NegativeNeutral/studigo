@@ -1,19 +1,27 @@
 <script lang="ts">
 	import { InlineCalendar, themes } from 'svelte-calendar';
 	import Booking_submit_form from '$lib/components/booking_submit_form.svelte';
-	import { obj_is_empty } from '$lib/helpers/helpers';
+	import { obj_is_empty, construct_qps } from '$lib/helpers/helpers';
 
 	import type { PageData } from './$types';
 	import type { Cal_event } from '$lib/types';
 
+	export let data: PageData;
 	const { dark: theme } = themes;
+
 	const MONDAY = 1;
-	const TODAY = new Date();
+	const TOMORROW = new Date();
+	TOMORROW.setDate(TOMORROW.getDate() + 1);
+	TOMORROW.setHours(0, 0, 0, 0);
+
 	const END = new Date();
 	END.setMonth(END.getMonth() + 3);
-	const STUDIO_OPENING_HOUR = 9; // Open at 9am
-	const STUDIO_OPERATING_HOURS = 8; // Operates from 9am until 5pm
-	export let data: PageData;
+
+	const STUDIO_OPENING_HOUR = data.studio_opening_hour; // Open at 9am
+	const STUDIO_OPERATING_HOURS = data.studio_operating_hours; // Operates from 9am until 5pm
+	const HOURLY_RATE = data.hourly_rate;
+	const STUDIO_NAME = data.studio_name;
+	const CAL_ID = data.cal_id;
 
 	let store: any; // Hack
 
@@ -23,7 +31,9 @@
 
 	// When selected_start_time changes, run on_new_date_selected
 	$: (async () => {
+		is_waiting_for_api = true;
 		available_hours = await on_new_times_retrieved(on_new_date_selected(selected_start_time));
+		is_waiting_for_api = false;
 	})();
 
 	/**
@@ -44,15 +54,16 @@
 		const end_time_o = new Date(start_time_o);
 		end_time_o?.setHours(23, 59, 59, 999);
 
-		// Stringify the dates
-		const start_time_s = encodeURIComponent(start_time_o?.toISOString());
-		const end_time_s = encodeURIComponent(end_time_o?.toISOString());
-		const cal_id = encodeURIComponent('primary'); // TODO: Read from somewhere
-
 		// Fetch query & output
-		is_waiting_for_api = true;
-		const query = `${data.path}?calID=${cal_id}&dateMin=${start_time_s}&dateMax=${end_time_s}`;
-		let p = await fetch(query, { method: 'GET' }); // promise
+		const QPS = {
+			cal_id: CAL_ID,
+			date_min: start_time_o?.toISOString(),
+			date_max: end_time_o?.toISOString()
+		};
+
+		const URL = `${data.path}?${construct_qps(QPS)}`;
+
+		let p = await fetch(URL, { method: 'GET' }); // promise
 		let o = await p.json(); // object
 		return o.times as Cal_event[]; // list of tuples
 	}
@@ -78,9 +89,7 @@
 
 			// Validate that start & end are correct
 			if (start == 'error' && end == 'error') {
-				console.log('Errors!');
 				data.is_oauth_set = {};
-				console.log(data.is_oauth_set);
 				return hour_is_free;
 			}
 
@@ -96,7 +105,6 @@
 			}
 		});
 
-		is_waiting_for_api = false;
 		return hour_is_free;
 	}
 </script>
@@ -105,15 +113,23 @@
 
 {#if !obj_is_empty(data.is_oauth_set)}
 	<div style="display: flex; flex-direction: row">
-		<InlineCalendar {theme} selected={TODAY} start={TODAY} end={END} startOfWeekIndex={MONDAY} bind:store />
+		<InlineCalendar {theme} selected={TOMORROW} start={TOMORROW} end={END} startOfWeekIndex={MONDAY} bind:store />
 
 		{#if is_waiting_for_api}
 			<h1>Waiting for dates, imagine there is a loading spinner here or something IDK</h1>
 		{:else}
 			<div style="background-color: grey" />
-			<Booking_submit_form {selected_start_time} {available_hours} {STUDIO_OPENING_HOUR} {STUDIO_OPERATING_HOURS} />
+			<Booking_submit_form
+				{selected_start_time}
+				{available_hours}
+				{STUDIO_OPENING_HOUR}
+				{STUDIO_OPERATING_HOURS}
+				{HOURLY_RATE}
+				{STUDIO_NAME}
+				{CAL_ID}
+			/>
 		{/if}
 	</div>
 {:else}
-	<a href="/login">Login to view calendars</a>
+	<h2><i>(Something has gone wrong here...)</i></h2>
 {/if}
