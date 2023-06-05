@@ -1,38 +1,67 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { construct_qps } from '$lib/helpers/helpers';
 
 	export let data: PageData;
 	let google_auth_url = data.google_auth_url;
 
-	function on_submit() {
-		const url_root = `${google_auth_url}`;
-		const qps = '';
-		window.location.assign(`${url_root}?${qps}`);
+	async function on_submit(e: SubmitEvent) {
+		const FD = new FormData(e.target as HTMLFormElement);
+		let data: { [key: string]: FormDataEntryValue } = {};
+
+		for (let [k, v] of FD) {
+			switch (k) {
+				case 'opening_hour':
+					data[k] = parseInt(v as string).toString();
+					break;
+				case 'closing_hour':
+					const v2 = parseInt(FD.get('opening_hour') as string);
+					const v1 = parseInt(v as string);
+					const vF = v1 - v2;
+					if (vF <= 1) {
+						// TODO: Give visual feedback in this case
+						return;
+					}
+					data['operating_hours'] = vF.toString();
+					break;
+
+				default:
+					data[k] = v;
+					break;
+			}
+		}
+
+		const URL = `sign-up?${construct_qps(data)}`;
+		let p = await fetch(URL, { method: 'GET' }); // promise
+		let o = await p.json();
+
+		if (o.success) {
+			window.location.assign(`${google_auth_url}`);
+		} else {
+			// TODO: Give feedback onscreen about failure
+		}
 	}
 
 	/* TODO:
-	 * Create the database from the query page on the site
-	 * Have this form read in all the data, and then write this data to the database
-	 * Then redirect to the google grant permissions page
-	 * Once google permissions are granted, write that data also to the database
+	 * Once google permissions are granted, write the refresh_token to the database
 	 * Configure the landing page to read from the database correctly
 	 **/
 </script>
 
 <form on:submit|preventDefault={on_submit} style="text-align: center; display: flex; flex-direction: column">
-	<label for="firstname">First Name(s):</label>
-	<input type="text" name="firstname" required />
+	<label for="first_name">First Name(s):</label>
+	<input type="text" name="first_name" required />
 
 	<label for="surname">Surname:</label>
 	<input type="text" name="surname" required />
 
-	<label for="studio_name">Studio name:</label>
+	<label for="studio_name">Studio Name:</label>
 	<input type="text" name="studio_name" required />
 
-	<label for="studio_address">Studio address:</label>
+	<label for="studio_address">Studio Address:</label>
 	<input type="text" name="studio_address" required />
 
-	<label for="studio_rate">Studio hourly rate (in pounds):</label>
+	<label for="studio_rate">Studio Hourly Rate (in pounds):</label>
 	<input type="text" name="studio_rate" required />
 
 	<label for="email">Studio Contact Email:</label>
@@ -40,6 +69,12 @@
 
 	<label for="phone">Studio Phone Number:</label>
 	<input type="tel" name="phone" required />
+
+	<label for="opening_hour">Studio Opening Hour (24h):</label>
+	<input type="text" name="opening_hour" required />
+
+	<label for="closing_hour">Studio Closing Hour (24h):</label>
+	<input type="text" name="closing_hour" required />
 
 	<div id="submit_row">
 		<button type="submit">Submit</button>
