@@ -36,7 +36,7 @@
 		let o = await p.json();
 
 		if (o.studio_id > 0) {
-			window.location.assign(`${google_auth_url}?state=${btoa(o.studio_id)}`);
+			window.location.assign(`${google_auth_url}`);
 		} else {
 			// TODO: Give feedback onscreen about failure, do not proceed
 		}

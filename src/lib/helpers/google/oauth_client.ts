@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 import { env } from '$env/dynamic/private';
-import { vercel_save_refresh_token } from '$lib/helpers/vercel/postgres_client';
+import { vercel_save_google_oauth_refresh_token } from '$lib/helpers/vercel/postgres_client';
 
 const GOOGLE_OAUTH2_CLIENT = new google.auth.OAuth2({
 	clientSecret: env.GCP_CLIENT_SECRET,
@@ -40,7 +40,7 @@ export function google_get_is_oauth_set() {
  */
 export async function google_set_oauth2_credentials(code: string) {
 	const { tokens } = await GOOGLE_OAUTH2_CLIENT.getToken(code);
-	vercel_save_refresh_token(tokens.refresh_token);
+	vercel_save_google_oauth_refresh_token(tokens.refresh_token);
 	GOOGLE_OAUTH2_CLIENT.setCredentials(tokens);
 }
 
@@ -60,4 +60,22 @@ export function google_get_calendar_api() {
 		version: 'v3',
 		auth: GOOGLE_OAUTH2_CLIENT
 	});
+}
+
+/**
+ * Refreshes the OAuth access token, using the refresh token.
+ * @param refresh_token The OAuth2 refresh token, stored in the `studio_owners`
+ * table
+ * @returns `True` if oauth is set, else `false`
+ */
+export async function google_refresh_oauth2(refresh_token: string | undefined) {
+	if (refresh_token == undefined) {
+		await GOOGLE_OAUTH2_CLIENT.refreshAccessToken();
+		return google_get_is_oauth_set();
+	}
+
+	GOOGLE_OAUTH2_CLIENT.setCredentials({ refresh_token: refresh_token });
+	const OUT = await GOOGLE_OAUTH2_CLIENT.refreshAccessToken();
+	GOOGLE_OAUTH2_CLIENT.setCredentials({ refresh_token: refresh_token, access_token: OUT.credentials.access_token });
+	return google_get_is_oauth_set();
 }

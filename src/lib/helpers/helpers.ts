@@ -1,3 +1,5 @@
+import type { Studio_owner } from '$lib/types';
+
 /**
  * Determines if a JavaScript Object is empty or not.
  * @param obj Any JavaScript object
@@ -79,4 +81,64 @@ export function booking_description_builder(
  */
 export function decimal_currency_subunit_to_unit(num: number) {
 	return (num / 100).toFixed(2);
+}
+
+/**
+ * Converts QPS to the form of `Studio_owner`. If QPS is not in the right form,
+ * throws an error.
+ * @param qps Query parameters
+ * @returns A `Studio_owner` object
+ */
+export function convert_qps_to_studio_owner(qps: { [key: string]: string }) {
+	const OWNERS: Studio_owner = {
+		first_name: '',
+		surname: '',
+		studio_name: '',
+		studio_address: '',
+		studio_email: '',
+		studio_phone_number: '',
+		studio_rate: 0,
+		studio_opening_hour: 0,
+		studio_operating_hours: 0,
+		google_oauth_refresh_token: '0'
+	};
+
+	for (const k in qps) {
+		switch (k) {
+			case 'first_name':
+				OWNERS[k] = qps[k];
+				break;
+			case 'surname':
+				OWNERS[k] = qps[k];
+				break;
+			case 'studio_name':
+				OWNERS[k] = qps[k];
+				break;
+			case 'studio_address':
+				OWNERS[k] = qps[k];
+				break;
+			case 'studio_email':
+				OWNERS[k] = qps[k];
+				break;
+			case 'studio_phone_number':
+				OWNERS[k] = qps[k];
+				break;
+			case 'studio_rate':
+				OWNERS[k] = parseInt(qps[k]) * 100;
+				break;
+			case 'studio_opening_hour':
+				OWNERS[k] = parseInt(qps[k]);
+				break;
+			case 'studio_operating_hours':
+				OWNERS[k] = parseInt(qps[k]);
+				break;
+			case 'google_oauth_refresh_token':
+				OWNERS[k] = qps[k];
+				break;
+			default:
+				throw new Error("We've got a type error here");
+		}
+	}
+
+	return OWNERS;
 }
