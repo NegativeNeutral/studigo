@@ -1,9 +1,9 @@
 import { createKysely } from '@vercel/postgres-kysely';
 import { env } from '$env/dynamic/private';
-import { obj_is_empty } from '$lib/helpers/helpers';
+import { studio_id_store } from '$lib/Store';
 
 interface Owners_table {
-	person_id: Generated<number>;
+	studio_id: Generated<number>;
 	first_name: string;
 	surname: string;
 	studio_name: string;
@@ -38,11 +38,8 @@ export async function vercel_create_new_user(qps: { [key: string]: string }) {
 		google_oauth_refresh_token: '0'
 	};
 
-	const RES = await CLIENT.insertInto('studio_owners').values(INSERT).execute();
-
-	return RES.every((r) => {
-		obj_is_empty(r);
-	});
+	const RES = await CLIENT.insertInto('studio_owners').values(INSERT).returning('studio_id').executeTakeFirst();
+	return RES == undefined ? -1 : (RES.studio_id as number);
 }
 
 export async function vercel_save_refresh_token(token: string | null | undefined) {
@@ -51,6 +48,12 @@ export async function vercel_save_refresh_token(token: string | null | undefined
 		return;
 	}
 
-	// TODO: STOP SQL INJECTIONS
-	// await CLIENT.sql`INSERT INTO studigo-user-table (refresh_token) VALUES (${token})`;
+	let studio_id = 0;
+	studio_id_store.subscribe((d) => (studio_id = d));
+
+	const INSERT = {
+		google_oauth_refresh_token: token
+	};
+
+	await CLIENT.updateTable('studio_owners').set(INSERT).where('studio_id', '=', studio_id).executeTakeFirst();
 }

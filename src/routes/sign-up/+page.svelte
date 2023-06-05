@@ -35,17 +35,12 @@
 		let p = await fetch(URL, { method: 'GET' }); // promise
 		let o = await p.json();
 
-		if (o.success) {
-			window.location.assign(`${google_auth_url}`);
+		if (o.studio_id > 0) {
+			window.location.assign(`${google_auth_url}?state=${btoa(o.studio_id)}`);
 		} else {
-			// TODO: Give feedback onscreen about failure
+			// TODO: Give feedback onscreen about failure, do not proceed
 		}
 	}
-
-	/* TODO:
-	 * Once google permissions are granted, write the refresh_token to the database
-	 * Configure the landing page to read from the database correctly
-	 **/
 </script>
 
 <form on:submit|preventDefault={on_submit} style="text-align: center; display: flex; flex-direction: column">

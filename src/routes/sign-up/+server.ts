@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { deconstruct_qps } from '$lib/helpers/helpers';
 import { vercel_create_new_user } from '$lib/helpers/vercel/postgres_client';
+import { studio_id_store } from '$lib/Store';
 
 import type { RequestHandler } from './$types';
 
@@ -10,5 +11,21 @@ import type { RequestHandler } from './$types';
  */
 export const GET = (async (event) => {
 	const QPS = deconstruct_qps(event.url);
-	return json({ success: vercel_create_new_user(QPS) });
+	const STUDIO_ID = await vercel_create_new_user(QPS);
+
+	if (STUDIO_ID > 0) {
+		studio_id_store.set(STUDIO_ID);
+		// TODO: using stores on the server is not thread safe. This store is global.
+		// If there was multiple users trying to subscribe at once, we may enter race
+		// conditions. We can't push state through the google oauth setup, so maybe
+		// We could store this studio_id on the local machine as a cookie, quickly read
+		// it upon navigating to google-oauth-landing and then send it back to the server
+		// to add to the user, or we could get google oauth first and then handle user
+		// creation. Either way this is not a suitable long term strategy. Stores
+		// On the server is bad idea.
+	} else {
+		// TODO: Handle error
+	}
+
+	return json({ studio_id: STUDIO_ID });
 }) satisfies RequestHandler;
