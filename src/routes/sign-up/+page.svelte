@@ -11,6 +11,7 @@
 	}
 
 	/* TODO:
+	 * Create the database from the query page on the site
 	 * Have this form read in all the data, and then write this data to the database
 	 * Then redirect to the google grant permissions page
 	 * Once google permissions are granted, write that data also to the database

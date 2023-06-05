@@ -42,7 +42,6 @@ export async function google_set_oauth2_credentials(code: string) {
 	const { tokens } = await GOOGLE_OAUTH2_CLIENT.getToken(code);
 	vercel_save_refresh_token(tokens.refresh_token);
 	GOOGLE_OAUTH2_CLIENT.setCredentials(tokens);
-	// TODO: Save tokens.access_token & tokens.refresh_token to a database
 }
 
 /**

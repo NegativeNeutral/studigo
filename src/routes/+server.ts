@@ -15,7 +15,7 @@ export const GET = (async (event) => {
 	let times: Cal_event[];
 
 	// If object is empty, return error
-	if (obj_is_empty(await google_get_is_oauth_set())) {
+	if (await google_get_is_oauth_set()) {
 		console.error('StudiGo: No OAuth configured!');
 		times = [['error', 'error']];
 	} else {

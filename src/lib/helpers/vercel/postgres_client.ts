@@ -10,5 +10,7 @@ export async function vercel_save_refresh_token(token: string | null | undefined
 		return;
 	}
 
+	// TODO: STOP SQL INJECTIONS
 	const V = await sql`INSERT INTO studigo-user-table (refresh_token) VALUES (${token})`;
+	let x = V.fields;
 }
