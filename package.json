@@ -39,6 +39,7 @@
 		"@sveltejs/adapter-vercel": "^3.0.1",
 		"@vercel/postgres-kysely": "^0.3.0",
 		"googleapis": "^118.0.0",
+		"kysely": "^0.25.0",
 		"svelte-calendar": "^3.1.6"
 	}
 }
