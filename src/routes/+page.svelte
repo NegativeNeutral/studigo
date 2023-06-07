@@ -176,6 +176,12 @@
 </div>
 
 <style>
+	:root {
+		--date-picker-background: #1b1e27;
+		--date-picker-foreground: #f7f7f7;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	}
+
 	.master_container {
 		display: grid;
 		grid-template: 1fr / 1fr;
@@ -183,6 +189,7 @@
 		overflow: hidden;
 		margin: auto;
 		width: max-content;
+		/*box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;*/
 	}
 
 	.carousel_phase {

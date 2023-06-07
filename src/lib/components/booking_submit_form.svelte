@@ -152,50 +152,39 @@
 {:else if booking_has_submit}
 	<h1>Submitting booking form... imagine a loading spinner...</h1>
 {:else}
-	<form
-		style="text-align: center; background-color: grey; display: flex; flex-direction: column"
-		on:submit|preventDefault={on_submit}
-	>
-		<h2>
-			Book <b>{STUDIO_NAME}</b> for {formatted_time}
-		</h2>
-		<label for="firstname">First Name(s):</label>
-		<input type="text" bind:value={first_name} name="firstname" required />
+	<form on:submit|preventDefault={on_submit} class="form">
+		<p>
+			Book <b>{STUDIO_NAME}</b> for <b>{formatted_time}</b>
+		</p>
+		<input placeholder="First Name" type="text" bind:value={first_name} name="firstname" required />
+		<input placeholder="Surname" type="text" bind:value={surname} name="surname" required />
+		<input placeholder="Contact Email" type="email" bind:value={email} name="email" required />
+		<input placeholder="Phone Number" type="tel" bind:value={phone} name="phone" required />
 
-		<label for="surname">Surname:</label>
-		<input type="text" bind:value={surname} name="surname" required />
-
-		<label for="email">Contact Email:</label>
-		<input type="email" bind:value={email} name="email" required />
-
-		<label for="phone">Phone Number:</label>
-		<input type="tel" bind:value={phone} name="phone" required />
-
-		<div id="radio_container">
-			{#each available_hours as hour, i}
-				<label
-					for={(i + STUDIO_OPENING_HOUR).toString()}
-					style={'background-color: '.concat(!hour ? 'red' : 'green')}
-					id={(i + STUDIO_OPENING_HOUR).toString()}
-					class="container"
-				>
-					{(i + STUDIO_OPENING_HOUR).toString()}:00
+		<div class="checkbox_master">
+			{#each available_hours as hour_is_available, i}
+				<div class={hour_is_available ? 'hour_selector_free' : 'hour_selector_busy'}>
+					<label
+						class="checkbox_labels"
+						for={(i + STUDIO_OPENING_HOUR).toString()}
+						id={(i + STUDIO_OPENING_HOUR).toString()}
+					>
+						{(i + STUDIO_OPENING_HOUR).toString()}:00
+					</label>
 					<input
 						type="checkbox"
 						name={'checkbox_'.concat((i + STUDIO_OPENING_HOUR).toString())}
-						disabled={!hour}
+						disabled={!hour_is_available}
 						bind:checked={is_checked[i]}
 						bind:this={checkboxes[i]}
 					/>
-					<span class="hour_selector" />
-				</label>
+				</div>
 			{/each}
 		</div>
 
-		<label for="message">Additional notes:</label>
-		<textarea name="message" />
+		<textarea placeholder="Additional notes" name="message" />
 
-		<div id="submit_row">
+		<div class="submit_row">
 			<button type="submit" bind:this={submit_button} autocomplete="off" disabled="true">Submit</button>
 			<h4>Cost: £{decimal_currency_subunit_to_unit(HOURLY_RATE * rate_multiplier)}</h4>
 		</div>
@@ -203,16 +192,137 @@
 {/if}
 
 <style>
-	#radio_container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-
-	#submit_row {
+	.submit_row {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		justify-content: space-evenly;
+	}
+
+	p {
+		word-wrap: normal;
+	}
+
+	.form {
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		padding: 1rem;
+		border-radius: 1rem;
+		border-radius: 0.5rem;
+		border-color: black;
+		border-style: solid;
+		border-width: 1px;
+		width: fit-content;
+		max-width: 80vw;
+	}
+
+	.form input[type='text'],
+	.form input[type='tel'],
+	.form input[type='email'],
+	.form textarea {
+		margin: 0.5rem;
+		text-indent: 10px;
+		height: 1rem;
+		border-radius: 0.5rem;
+		border-color: black;
+		border-style: solid;
+		border-width: 1px;
+		box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+	}
+
+	.form input::placeholder,
+	.form textarea::placeholder {
+		color: #111111;
+		font-style: bold;
+		font-size: 1rem;
+	}
+
+	.form textarea {
+		height: 5rem;
+		resize: none;
+	}
+
+	/**
+	* CHECKBOXES
+	*/
+
+	.hour_selector_free,
+	.hour_selector_busy {
+		display: grid;
+		grid-template: 1fr / 1fr;
+		align-items: center;
+		justify-items: center;
+	}
+
+	.hour_selector_free label,
+	.hour_selector_busy label,
+	.hour_selector_busy input,
+	.hour_selector_free input {
+		position: relative;
+		grid-column: 1;
+		grid-row: 1;
+	}
+
+	.hour_selector_free label,
+	.hour_selector_busy label {
+		z-index: 100;
+		width: fit-content;
+	}
+
+	.hour_selector_busy input[type='checkbox'],
+	.hour_selector_free input[type='checkbox'] {
+		-webkit-appearance: none;
+		appearance: none;
+		background-color: white;
+		margin: 0;
+
+		font: inherit;
+		color: currentColor;
+		width: 100%;
+		height: 2em;
+
+		transform: translateY(-0.075em);
+
+		display: grid;
+		place-content: center;
+	}
+
+	.form input[type='checkbox']::before {
+		content: '';
+		transform: scale(0);
+	}
+
+	.form input[type='checkbox']:checked {
+		background-color: rgb(20, 171, 20);
+	}
+
+	.form input[type='checkbox']:hover {
+		background-color: rgb(12, 102, 12);
+		cursor: grab;
+	}
+
+	.form input[type='checkbox']:disabled {
+		background-color: #6666664b;
+		cursor: default;
+	}
+
+	.hour_selector_free input[type='checkbox']:disabled:checked {
+		background-color: purple;
+	}
+
+	.hour_selector_busy input[type='checkbox']:disabled {
+		background-color: red;
+		cursor: default;
+	}
+
+	.checkbox_master {
+		border-color: black;
+		border-style: solid;
+		border-width: 1px;
+		border-radius: 1rem;
+		overflow: hidden;
+		height: min-content;
+		margin: 0.5rem;
 	}
 </style>
