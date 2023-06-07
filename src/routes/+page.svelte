@@ -1,19 +1,17 @@
 <script lang="ts">
-	import { InlineCalendar, themes } from 'svelte-calendar';
 	import Booking_submit_form from '$lib/components/booking_submit_form.svelte';
-	import { obj_is_empty, construct_qps } from '$lib/helpers/helpers';
+	import { construct_qps } from '$lib/helpers/helpers';
 	import { Circle } from 'svelte-loading-spinners';
-
+	import { DatePicker } from 'date-picker-svelte';
 	import type { PageData } from './$types';
 	import type { Cal_event } from '$lib/types';
 
 	export let data: PageData;
-	const { dark: theme } = themes;
 
-	const MONDAY = 1;
 	const TOMORROW = new Date();
 	TOMORROW.setDate(TOMORROW.getDate() + 1);
 	TOMORROW.setHours(0, 0, 0, 0);
+	let selected_start_time: Date;
 
 	const END = new Date();
 	END.setMonth(END.getMonth() + 3);
@@ -24,9 +22,6 @@
 	const STUDIO_NAME = data.studio_name;
 	const CAL_ID = data.cal_id;
 
-	let store: any; // Hack
-
-	$: selected_start_time = $store?.selected as Date;
 	let available_hours = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(true);
 	let is_waiting_for_api = false;
 
@@ -90,7 +85,7 @@
 
 			// Validate that start & end are correct
 			if (start == 'error' && end == 'error') {
-				data.is_oauth_set = {};
+				data.is_oauth_set = false;
 				return hour_is_free;
 			}
 
@@ -108,29 +103,30 @@
 
 		return hour_is_free;
 	}
+
+	function button_go_back() {
+		selected_start_time = undefined;
+	}
 </script>
 
 <h1>Welcome to StudiGo</h1>
 
-{#if !obj_is_empty(data.is_oauth_set)}
-	<div style="display: flex; flex-direction: row">
-		<InlineCalendar {theme} selected={TOMORROW} start={TOMORROW} end={END} startOfWeekIndex={MONDAY} bind:store />
-
-		{#if is_waiting_for_api}
-			<Circle size="60" color="#444444" unit="px" duration="1s" />
-		{:else}
-			<div style="background-color: grey" />
-			<Booking_submit_form
-				{selected_start_time}
-				{available_hours}
-				{STUDIO_OPENING_HOUR}
-				{STUDIO_OPERATING_HOURS}
-				{HOURLY_RATE}
-				{STUDIO_NAME}
-				{CAL_ID}
-			/>
-		{/if}
-	</div>
-{:else}
+{#if !data.is_oauth_set}
 	<h2><i>(Something has gone wrong here...)</i></h2>
+{:else if selected_start_time == undefined}
+	<DatePicker min={TOMORROW} max={END} bind:value={selected_start_time} />
+{:else if is_waiting_for_api}
+	<Circle size="60" color="#444444" unit="px" duration="1s" />
+{:else}
+	<div style="background-color: grey" />
+	<button on:click={button_go_back}>Go back</button>
+	<Booking_submit_form
+		{selected_start_time}
+		{available_hours}
+		{STUDIO_OPENING_HOUR}
+		{STUDIO_OPERATING_HOURS}
+		{HOURLY_RATE}
+		{STUDIO_NAME}
+		{CAL_ID}
+	/>
 {/if}
