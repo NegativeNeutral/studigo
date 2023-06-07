@@ -8,7 +8,7 @@
 	export let STUDIO_NAME: string;
 	export let CAL_ID: string;
 
-	export let selected_start_time: Date;
+	export let selected_start_time: Date | null;
 	export let available_hours: boolean[];
 
 	// HTML attribute bindings bindings
@@ -89,7 +89,7 @@
 	 */
 	function form_data_to_qp(fd: FormData) {
 		let i = 0;
-		let t = new Date(selected_start_time);
+		let t = new Date(selected_start_time as Date);
 		let time: Cal_event = ['', ''];
 		let data: { [key: string]: FormDataEntryValue } = {};
 

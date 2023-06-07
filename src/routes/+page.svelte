@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Booking_submit_form from '$lib/components/booking_submit_form.svelte';
 	import { construct_qps } from '$lib/helpers/helpers';
+	import { fly } from 'svelte/transition';
 	import { Circle } from 'svelte-loading-spinners';
 	import { DatePicker } from 'date-picker-svelte';
 	import type { PageData } from './$types';
@@ -9,28 +10,31 @@
 	export let data: PageData;
 
 	const TOMORROW = new Date();
+	const END = new Date();
 	TOMORROW.setDate(TOMORROW.getDate() + 1);
 	TOMORROW.setHours(0, 0, 0, 0);
-	let selected_start_time: Date;
-
-	const END = new Date();
 	END.setMonth(END.getMonth() + 3);
-
 	const STUDIO_OPENING_HOUR = data.studio_opening_hour; // Open at 9am
 	const STUDIO_OPERATING_HOURS = data.studio_operating_hours; // Operates from 9am until 5pm
 	const HOURLY_RATE = data.hourly_rate;
 	const STUDIO_NAME = data.studio_name;
 	const CAL_ID = data.cal_id;
 
+	let selected_start_time: Date | null = null;
+	let show_calendar = true;
 	let available_hours = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(true);
 	let is_waiting_for_api = false;
 
-	// When selected_start_time changes, run on_new_date_selected
-	$: (async () => {
+	async function on_new_date_selected() {
 		is_waiting_for_api = true;
-		available_hours = await on_new_times_retrieved(on_new_date_selected(selected_start_time));
+		const OUT = await on_new_times_retrieved(call_calendar_api(selected_start_time));
+		if (OUT != null) {
+			available_hours = OUT;
+			show_calendar = false;
+		}
+
 		is_waiting_for_api = false;
-	})();
+	}
 
 	/**
 	 * The function to run when a new date is selected on the calendar view. It:
@@ -40,11 +44,12 @@
 	 * @param start_time_o An object representing the selected date
 	 * @returns the events for the selected day, as a Promise
 	 */
-	async function on_new_date_selected(start_time_o: Date) {
-		available_hours = available_hours.fill(true);
-		if (!start_time_o) {
-			return [];
+	async function call_calendar_api(start_time_o: Date | null) {
+		if (start_time_o == null) {
+			return null;
 		}
+
+		available_hours = available_hours.fill(true);
 
 		// Create END time of day object
 		const end_time_o = new Date(start_time_o);
@@ -75,9 +80,14 @@
 	 * @returns An array of booleans indicating if each hour of a day the studio
 	 * is open is free or not.
 	 */
-	async function on_new_times_retrieved(es_p: Promise<Cal_event[]>) {
-		let hour_is_free = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(true);
+	async function on_new_times_retrieved(es_p: Promise<Cal_event[] | null>) {
 		let es = await es_p;
+
+		if (es == null) {
+			return null;
+		}
+
+		let hour_is_free = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(true);
 
 		es.forEach((e) => {
 			// Get the date objects needed
@@ -103,30 +113,60 @@
 
 		return hour_is_free;
 	}
-
-	function button_go_back() {
-		selected_start_time = undefined;
-	}
 </script>
 
 <h1>Welcome to StudiGo</h1>
 
-{#if !data.is_oauth_set}
-	<h2><i>(Something has gone wrong here...)</i></h2>
-{:else if selected_start_time == undefined}
-	<DatePicker min={TOMORROW} max={END} bind:value={selected_start_time} />
-{:else if is_waiting_for_api}
-	<Circle size="60" color="#444444" unit="px" duration="1s" />
-{:else}
-	<div style="background-color: grey" />
-	<button on:click={button_go_back}>Go back</button>
-	<Booking_submit_form
-		{selected_start_time}
-		{available_hours}
-		{STUDIO_OPENING_HOUR}
-		{STUDIO_OPERATING_HOURS}
-		{HOURLY_RATE}
-		{STUDIO_NAME}
-		{CAL_ID}
-	/>
-{/if}
+<div
+	style="display: grid;
+		grid-template: 1fr / 1fr;
+		place-items: start center;"
+>
+	{#if show_calendar}
+		<div
+			style="position: relative; grid-column: 1 / 1; grid-row: 1 / 1; width: max-content; display: grid; align-items: center; justify-items: center;"
+			in:fly|local={{ x: 1000, duration: 200, opacity: 100}}
+			out:fly|local={{ x: -1000, duration: 200, opacity: 100}}
+		>
+			<div style="grid-column: 1; grid-row: 1">
+				<DatePicker
+					on:select={on_new_date_selected}
+					min={TOMORROW}
+					max={END}
+					bind:value={selected_start_time}
+					browseWithoutSelecting={true}
+				/>
+			</div>
+			{#if is_waiting_for_api}
+				<div style="grid-column: 1; grid-row: 1;">
+					<Circle size="60" color="#444444" unit="px" duration="1s" />
+				</div>
+				<div style="grid-column: 1; grid-row: 1; z-index: 1; background-color: #66666666; width: 100%; height: 100%;" />
+			{/if}
+		</div>
+	{:else if !show_calendar && !is_waiting_for_api}
+		<div
+			style="position: relative; grid-column: 1 / 1; grid-row: 1 / 1;"
+			in:fly|local={{ x: 1000, duration: 200, opacity: 100}}
+			out:fly|local={{ x: -1000, duration: 200, opacity: 100}}
+		>
+			<button
+				on:click|preventDefault={() => {
+					show_calendar = true;
+					selected_start_time = null;
+				}}>Go back</button
+			>
+			<Booking_submit_form
+				{selected_start_time}
+				{available_hours}
+				{STUDIO_OPENING_HOUR}
+				{STUDIO_OPERATING_HOURS}
+				{HOURLY_RATE}
+				{STUDIO_NAME}
+				{CAL_ID}
+			/>
+		</div>
+	{:else if !data.is_oauth_set}
+		<h2><i>(Something has gone wrong here...)</i></h2>
+	{/if}
+</div>
