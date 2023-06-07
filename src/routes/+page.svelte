@@ -24,11 +24,18 @@
 	let show_calendar = true;
 	let available_hours = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(true);
 	let is_waiting_for_api = false;
+	let fly_direction = 1;
+
+	const ANIM_SPEED = 1000;
+	const ANIM_DURATION = 200;
+
+	$: console.log(fly_direction);
 
 	async function on_new_date_selected() {
 		is_waiting_for_api = true;
 		const OUT = await on_new_times_retrieved(call_calendar_api(selected_start_time));
 		if (OUT != null) {
+			fly_direction = 1;
 			available_hours = OUT;
 			show_calendar = false;
 		}
@@ -117,18 +124,14 @@
 
 <h1>Welcome to StudiGo</h1>
 
-<div
-	style="display: grid;
-		grid-template: 1fr / 1fr;
-		place-items: start center;"
->
+<div class="master_container">
 	{#if show_calendar}
 		<div
-			style="position: relative; grid-column: 1 / 1; grid-row: 1 / 1; width: max-content; display: grid; align-items: center; justify-items: center;"
-			in:fly|local={{ x: 1000, duration: 200, opacity: 100}}
-			out:fly|local={{ x: -1000, duration: 200, opacity: 100}}
+			class="carousel_phase"
+			in:fly|local={{ x: ANIM_SPEED * fly_direction, duration: ANIM_DURATION, opacity: 100 }}
+			out:fly|local={{ x: ANIM_SPEED * -fly_direction, duration: ANIM_DURATION, opacity: 100 }}
 		>
-			<div style="grid-column: 1; grid-row: 1">
+			<div class="lowest_container">
 				<DatePicker
 					on:select={on_new_date_selected}
 					min={TOMORROW}
@@ -138,20 +141,21 @@
 				/>
 			</div>
 			{#if is_waiting_for_api}
-				<div style="grid-column: 1; grid-row: 1;">
+				<div class="lowest_container">
 					<Circle size="60" color="#444444" unit="px" duration="1s" />
 				</div>
-				<div style="grid-column: 1; grid-row: 1; z-index: 1; background-color: #66666666; width: 100%; height: 100%;" />
+				<div class="loading_cover" />
 			{/if}
 		</div>
 	{:else if !show_calendar && !is_waiting_for_api}
 		<div
-			style="position: relative; grid-column: 1 / 1; grid-row: 1 / 1;"
-			in:fly|local={{ x: 1000, duration: 200, opacity: 100}}
-			out:fly|local={{ x: -1000, duration: 200, opacity: 100}}
+			class="carousel_phase"
+			in:fly|local={{ x: ANIM_SPEED * fly_direction, duration: ANIM_DURATION, opacity: 100 }}
+			out:fly|local={{ x: ANIM_SPEED * -fly_direction, duration: ANIM_DURATION, opacity: 100 }}
 		>
 			<button
 				on:click|preventDefault={() => {
+					fly_direction = -1;
 					show_calendar = true;
 					selected_start_time = null;
 				}}>Go back</button
@@ -170,3 +174,38 @@
 		<h2><i>(Something has gone wrong here...)</i></h2>
 	{/if}
 </div>
+
+<style>
+	.master_container {
+		display: grid;
+		grid-template: 1fr / 1fr;
+		place-items: start center;
+		overflow: hidden;
+		margin: auto;
+		width: max-content;
+	}
+
+	.carousel_phase {
+		position: relative;
+		grid-column: 1 / 1;
+		grid-row: 1 / 1;
+		width: max-content;
+		display: grid;
+		align-items: center;
+		justify-items: center;
+	}
+
+	.lowest_container {
+		grid-column: 1;
+		grid-row: 1;
+	}
+
+	.loading_cover {
+		grid-column: 1;
+		grid-row: 1;
+		z-index: 1;
+		background-color: #66666666;
+		width: 100%;
+		height: 100%;
+	}
+</style>
