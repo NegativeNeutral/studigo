@@ -2,6 +2,7 @@
 	import { InlineCalendar, themes } from 'svelte-calendar';
 	import Booking_submit_form from '$lib/components/booking_submit_form.svelte';
 	import { obj_is_empty, construct_qps } from '$lib/helpers/helpers';
+	import { Circle } from 'svelte-loading-spinners';
 
 	import type { PageData } from './$types';
 	import type { Cal_event } from '$lib/types';
@@ -116,7 +117,7 @@
 		<InlineCalendar {theme} selected={TOMORROW} start={TOMORROW} end={END} startOfWeekIndex={MONDAY} bind:store />
 
 		{#if is_waiting_for_api}
-			<h1>Waiting for dates, imagine there is a loading spinner here or something IDK</h1>
+			<Circle size="60" color="#444444" unit="px" duration="1s" />
 		{:else}
 			<div style="background-color: grey" />
 			<Booking_submit_form

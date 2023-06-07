@@ -5,7 +5,7 @@ import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url }) => {
 	const RES = await vercel_get_studio_owner_info(parseInt(env.PHOTOMAFIA_STUDIO_OWNER_ID as string));
-	await google_refresh_oauth2(RES.google_oauth_refresh_token);
+	await google_refresh_oauth2(RES?.google_oauth_refresh_token);
 
 	return {
 		path: url.pathname,
