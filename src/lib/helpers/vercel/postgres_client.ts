@@ -41,7 +41,6 @@ const CLIENT = createKysely<DB>({
  */
 export async function vercel_create_new_studio_owner(qps: Studio_owner) {
 	console.log('Inserting new user into vercel...');
-	console.log(qps);
 	const RES = await CLIENT.insertInto('studio_owners').values(qps).returning('studio_id').executeTakeFirst();
 	return RES == undefined ? -1 : (RES.studio_id as number);
 }

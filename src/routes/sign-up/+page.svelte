@@ -31,8 +31,6 @@
 			}
 		}
 
-		console.log(data);
-
 		const URL = `sign-up?${construct_qps(data)}`;
 		let p = await fetch(URL, { method: 'GET' }); // promise
 		let o = await p.json();

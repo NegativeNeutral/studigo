@@ -268,6 +268,7 @@
 	.hour_selector_busy label {
 		z-index: 100;
 		width: fit-content;
+		pointer-events: none;
 	}
 
 	.hour_selector_busy input[type='checkbox'],

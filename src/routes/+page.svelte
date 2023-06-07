@@ -29,8 +29,6 @@
 	const ANIM_SPEED = 1000;
 	const ANIM_DURATION = 200;
 
-	$: console.log(fly_direction);
-
 	async function on_new_date_selected() {
 		is_waiting_for_api = true;
 		const OUT = await on_new_times_retrieved(call_calendar_api(selected_start_time));
