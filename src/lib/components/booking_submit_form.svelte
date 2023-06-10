@@ -164,13 +164,6 @@
 		<div class="checkbox_master">
 			{#each available_hours as hour_is_available, i}
 				<div class={hour_is_available ? 'hour_selector_free' : 'hour_selector_busy'}>
-					<label
-						class="checkbox_labels"
-						for={(i + STUDIO_OPENING_HOUR).toString()}
-						id={(i + STUDIO_OPENING_HOUR).toString()}
-					>
-						{(i + STUDIO_OPENING_HOUR).toString()}:00
-					</label>
 					<input
 						type="checkbox"
 						name={'checkbox_'.concat((i + STUDIO_OPENING_HOUR).toString())}
@@ -178,6 +171,13 @@
 						bind:checked={is_checked[i]}
 						bind:this={checkboxes[i]}
 					/>
+					<label
+						class="checkbox_labels"
+						for={(i + STUDIO_OPENING_HOUR).toString()}
+						id={(i + STUDIO_OPENING_HOUR).toString()}
+					>
+						{(i + STUDIO_OPENING_HOUR).toString()}:00
+					</label>
 				</div>
 			{/each}
 		</div>
@@ -203,7 +203,7 @@
 		word-wrap: normal;
 	}
 
-	.form {
+	form {
 		text-align: center;
 		display: flex;
 		flex-direction: column;
@@ -217,10 +217,10 @@
 		max-width: 80vw;
 	}
 
-	.form input[type='text'],
-	.form input[type='tel'],
-	.form input[type='email'],
-	.form textarea {
+	form > input[type='text'],
+	form > input[type='tel'],
+	form > input[type='email'],
+	form > textarea {
 		margin: 0.5rem;
 		text-indent: 10px;
 		height: 1rem;
@@ -231,14 +231,14 @@
 		box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
 	}
 
-	.form input::placeholder,
-	.form textarea::placeholder {
+	form > input::placeholder,
+	form > textarea::placeholder {
 		color: #111111;
 		font-style: bold;
 		font-size: 1rem;
 	}
 
-	.form textarea {
+	form > textarea {
 		height: 5rem;
 		resize: none;
 	}
@@ -295,17 +295,24 @@
 	}
 
 	.form input[type='checkbox']:checked {
-		background-color: rgb(20, 171, 20);
-	}
-
-	.form input[type='checkbox']:hover {
-		background-color: rgb(12, 102, 12);
-		cursor: grab;
+		background-color: green;
 	}
 
 	.form input[type='checkbox']:disabled {
-		background-color: #6666664b;
+		background-color: grey;
 		cursor: default;
+	}
+
+	.form input[type='checkbox']:disabled + label {
+		text-decoration-line: line-through;
+	}
+
+	.hour_selector_free > input[type='checkbox']:disabled:checked + label {
+		text-decoration-line: none;
+	}
+
+	.hour_selector_busy label {
+		text-decoration-line: line-through;
 	}
 
 	.hour_selector_free input[type='checkbox']:disabled:checked {
@@ -325,5 +332,17 @@
 		overflow: hidden;
 		height: min-content;
 		margin: 0.5rem;
+	}
+
+	@media (hover: hover) {
+		.form input[type='checkbox']:enabled:hover {
+			background-color: pink;
+			cursor: grab;
+		}
+
+		.form input[type='checkbox']:enabled:checked:hover {
+			background-color: darkgreen;
+			cursor: grab;
+		}
 	}
 </style>
