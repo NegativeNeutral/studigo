@@ -175,8 +175,8 @@
 
 <style>
 	:root {
-		--date-picker-background: #1b1e27;
-		--date-picker-foreground: #f7f7f7;
+		--date-picker-foreground: black;
+		--date-picker-background: #f7f7f700;
 		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	}
 

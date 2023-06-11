@@ -62,17 +62,22 @@ export async function google_get_event_times(calID: string, timeMin: string, tim
 export async function google_create_event(data: Google_cal_create_event) {
 	console.log(`Creating event for ${data.event_times[0]} until ${data.event_times[1]} via Google API`);
 
-	return await CALENDAR_API.events.insert({
-		calendarId: data.cal_id,
-		requestBody: {
-			start: {
-				dateTime: data.event_times[0]
-			},
-			end: {
-				dateTime: data.event_times[1]
-			},
-			description: data.description,
-			summary: data.title
-		}
-	});
+	try {
+		return await CALENDAR_API.events.insert({
+			calendarId: data.cal_id,
+			requestBody: {
+				start: {
+					dateTime: data.event_times[0]
+				},
+				end: {
+					dateTime: data.event_times[1]
+				},
+				description: data.description,
+				summary: data.title
+			}
+		});
+	} catch (e) {
+		console.error('This is where the fucking error is...');
+		console.error(e);
+	}
 }

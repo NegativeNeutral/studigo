@@ -19,6 +19,7 @@
 		"@sveltejs/kit": "^1.20.2",
 		"@typescript-eslint/eslint-plugin": "^5.59.9",
 		"@typescript-eslint/parser": "^5.59.9",
+		"@zerodevx/svelte-toast": "^0.9.3",
 		"date-picker-svelte": "^2.4.3",
 		"eslint": "^8.42.0",
 		"eslint-config-prettier": "^8.8.0",

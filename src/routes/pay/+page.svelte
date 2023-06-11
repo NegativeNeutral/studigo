@@ -1,17 +1,34 @@
 <script lang="ts">
-	import { loadStripe } from '@stripe/stripe-js';
 	import { env } from '$env/dynamic/public';
 	import { decimal_currency_subunit_to_unit } from '$lib/helpers/helpers';
-	import { Elements, PaymentElement } from 'svelte-stripe';
 	import { onMount } from 'svelte';
+
+	import { loadStripe } from '@stripe/stripe-js';
+	import { Elements, PaymentElement } from 'svelte-stripe';
+	import { Circle } from 'svelte-loading-spinners';
+	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
+
 	import type { Stripe, StripeElements } from '@stripe/stripe-js';
 
 	import type { PageData } from './$types';
 	import { construct_qps } from '$lib/helpers/helpers';
-	export let data: PageData;
 
+	export let data: PageData;
 	let stripe: Stripe;
 	let elements: StripeElements;
+
+	// Optionally set default options here
+	const TOAST_OPTIONS = {
+		duration: 4000,
+		initial: 1,
+		next: 0,
+		pausable: false,
+		dismissable: true,
+		reversed: false,
+		intro: { y: -256 },
+		theme: {},
+		classes: []
+	};
 
 	/**
 	 * Handles form submission.
@@ -24,8 +41,8 @@
 		});
 
 		if (result.error) {
-			// TODO: Handle the Stripe API error events
 			console.error(result.error);
+			toast.push(result.error.message as string);
 			return;
 		}
 
@@ -64,5 +81,7 @@
 		<button>Pay</button>
 	</form>
 {:else}
-	<h2>Hang on we're loading here...</h2>
+	<Circle size="60" color="#444444" unit="px" duration="1s" />
 {/if}
+
+<SvelteToast options={TOAST_OPTIONS} />
