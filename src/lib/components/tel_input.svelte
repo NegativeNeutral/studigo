@@ -100,6 +100,7 @@
 		line-height: inherit;
 		font-size: 0.9rem;
 		color: black;
+		vertical-align: bottom;
 	}
 
 	div :global(.basic-tel-input::placeholder) {
@@ -124,6 +125,7 @@
 		border-bottom-left-radius: 0;
 		border: 1px solid;
 		outline: none;
+		padding: 1px;
 	}
 
 	div :global(.invalid) {

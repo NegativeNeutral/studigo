@@ -14,6 +14,8 @@
 	export let HOURLY_RATE: number;
 	export let STUDIO_NAME: string;
 	export let CAL_ID: string;
+	export let fly_direction: number;
+	export let show_calendar: boolean;
 
 	export let selected_start_time: Date | null;
 	export let available_hours: boolean[];
@@ -134,13 +136,31 @@
 
 {#if available_hours.every((hour) => hour == false)}
 	<h1><b>{STUDIO_NAME}</b> is unavailable on {formatted_time}</h1>
+	<button
+		class="back_button"
+		on:click|preventDefault={() => {
+			fly_direction = -1;
+			show_calendar = true;
+			selected_start_time = null;
+		}}>&#8249;</button
+	>
 {:else if booking_has_submit}
 	<Circle size="60" color="#444444" unit="px" duration="1s" />
 {:else}
 	<form on:submit|preventDefault={on_submit} class="form">
-		<p>
-			Book <b>{STUDIO_NAME}</b> for <b>{formatted_time}</b>
-		</p>
+		<span class="top_row">
+			<button
+				class="back_button"
+				on:click|preventDefault={() => {
+					fly_direction = -1;
+					show_calendar = true;
+					selected_start_time = null;
+				}}>&#8249;</button
+			>
+			<p>
+				Book <b>{formatted_time}</b>
+			</p>
+		</span>
 		<input placeholder="First Name" type="text" bind:value={first_name} name="firstname" required />
 		<input placeholder="Surname" type="text" bind:value={surname} name="surname" required />
 		<input
@@ -172,16 +192,37 @@
 {/if}
 
 <style>
+	.top_row p {
+		word-wrap: normal;
+		padding: 0;
+		margin: 0;
+	}
+	.top_row button:enabled {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background-color: #00000000;
+		border: 0;
+		box-shadow: none;
+		font-size: 3rem;
+		padding: 0;
+		color: grey;
+		text-align: center;
+		vertical-align: middle;
+	}
+	.top_row {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+
 	hr {
 		width: 100%;
 		height: 0.1vh;
 		background-color: black;
 		border-color: black;
 		border-radius: 1rem;
-	}
-
-	p {
-		word-wrap: normal;
 	}
 
 	form {
@@ -206,6 +247,7 @@
 	form > input[type='text'],
 	form > input[type='email'],
 	form > textarea {
+		padding: 1px;
 		border-color: black;
 		border-style: solid;
 		border-width: 1px;

@@ -118,6 +118,11 @@
 
 		return hour_is_free;
 	}
+
+	$: show_calendar,
+		() => {
+			console.log();
+		};
 </script>
 
 <h1>Welcome to StudiGo</h1>
@@ -151,21 +156,16 @@
 			in:fly|local={{ x: ANIM_SPEED * fly_direction, duration: ANIM_DURATION, opacity: 100 }}
 			out:fly|local={{ x: ANIM_SPEED * -fly_direction, duration: ANIM_DURATION, opacity: 100 }}
 		>
-			<button
-				on:click|preventDefault={() => {
-					fly_direction = -1;
-					show_calendar = true;
-					selected_start_time = null;
-				}}>Go back</button
-			>
 			<Booking_submit_form
-				{selected_start_time}
 				{available_hours}
 				{STUDIO_OPENING_HOUR}
 				{STUDIO_OPERATING_HOURS}
 				{HOURLY_RATE}
 				{STUDIO_NAME}
 				{CAL_ID}
+				bind:selected_start_time
+				bind:fly_direction
+				bind:show_calendar
 			/>
 		</div>
 	{:else if !data.is_oauth_set}
