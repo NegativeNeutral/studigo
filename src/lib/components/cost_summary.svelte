@@ -48,7 +48,7 @@
 
 <style>
 	h4 {
-    margin-top: 0.5rem;
+		margin-top: 0.5rem;
 		margin-bottom: 1rem;
 	}
 
@@ -65,8 +65,12 @@
 		border: none;
 	}
 
+	td {
+		padding-left: 0.5vh;
+		padding-right: 0.5vh;
+	}
+
 	td:nth-child(1) {
-		padding-left: 1vh;
 		font-weight: bold;
 		text-align: right;
 	}
@@ -75,16 +79,16 @@
 		color: grey;
 		font-size: 0.7rem;
 		vertical-align: bottom;
+		text-align: center;
 	}
 
 	td:nth-child(3) {
-		padding-left: 1vh;
-		padding-right: 1vh;
 		text-align: left;
+		width: 5rem;
 	}
 
 	tr:last-child {
-		background-color: grey;
+		border-top: 2px solid black;
 		font-size: 1.1rem;
 	}
 

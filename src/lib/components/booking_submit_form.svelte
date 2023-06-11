@@ -1,9 +1,13 @@
 <script lang="ts">
-	import type { Cal_event } from '$lib/types';
 	import { decimal_currency_subunit_to_unit, construct_qps, booking_description_builder } from '$lib/helpers/helpers';
 	import Booking_form_hour_buttons from '$lib/components/booking_form_hour_buttons.svelte';
+	import Tel_input from '$lib/components/tel_input.svelte';
 	import Cost_summary from '$lib/components/cost_summary.svelte';
 	import { Circle } from 'svelte-loading-spinners';
+	import { onMount } from 'svelte';
+
+	import type { Cal_event } from '$lib/types';
+	import type { E164Number } from 'svelte-tel-input/types';
 
 	export let STUDIO_OPERATING_HOURS: number;
 	export let STUDIO_OPENING_HOUR: number;
@@ -16,13 +20,15 @@
 
 	// HTML attribute bindings bindings
 	let submit_button: HTMLButtonElement;
+	let email_element: HTMLInputElement;
 
 	// HTML value bindings
 	let is_checked = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(false);
 	let first_name = '';
 	let surname = '';
-	let email = '';
-	let phone = '';
+	let email_value = '';
+	let message = '';
+	let phone_number_value: E164Number = '';
 
 	let rate_multiplier = 0;
 	let booking_has_submit = false;
@@ -45,11 +51,11 @@
 	 * 4. Checkboxes between the head and tail should never be checkable
 	 * @param cs A boolean array indicating if a checkbox is clicked or not.
 	 */
-	function validate_form(cs: boolean[], fn: string, sn: string, e: string, p: string) {
+	function validate_form(cs: boolean[], fn: string, sn: string, e: string, p: E164Number) {
 		const BOXES_ARE_TICKED = cs.filter((v) => v == true).length;
 
 		// If the form can be submitted, allow submit button
-		if (BOXES_ARE_TICKED && fn?.length && sn?.length && e?.length && p?.length) {
+		if (BOXES_ARE_TICKED && fn?.length && sn?.length && e?.length && p.length) {
 			submit_button?.removeAttribute('disabled');
 		}
 		// Disallow submit button
@@ -69,7 +75,6 @@
 		let i = 0;
 		let t = new Date(selected_start_time as Date);
 		let time: Cal_event = ['', ''];
-		let data: { [key: string]: FormDataEntryValue } = {};
 
 		// Loop through form data:
 		// * if it was a checkbox, add the date time string
@@ -79,8 +84,6 @@
 				t.setHours(parseInt(k.replace('checkbox_', '')) + i);
 				time[i] = t.toISOString();
 				i++;
-			} else {
-				data[k] = v;
 			}
 		}
 
@@ -90,7 +93,7 @@
 			time[1] = t.toISOString();
 		}
 
-		const FULL_NAME = `${data.firstname} ${data.surname}`;
+		const FULL_NAME = `${first_name} ${surname}`;
 
 		const QPS = {
 			cal_id: CAL_ID,
@@ -99,13 +102,7 @@
 			end_time: time[1],
 			studio_name: STUDIO_NAME,
 			booking_price: total_cost,
-			description: booking_description_builder(
-				FULL_NAME,
-				STUDIO_NAME,
-				data.phone.toString(),
-				data.email.toString(),
-				data.message.toString()
-			)
+			description: booking_description_builder(FULL_NAME, STUDIO_NAME, phone_number_value, email_value, message)
 		};
 
 		return construct_qps(QPS);
@@ -121,8 +118,18 @@
 		window.location.assign(`${url_root}?${qps}`);
 	}
 
+	onMount(async () => {
+		email_element.addEventListener('focusout', (event) => {
+			if (email_element.validity.valid) {
+				email_element.style.removeProperty('border-color');
+			} else {
+				email_element.style.setProperty('border-color', 'red');
+			}
+		});
+	});
+
 	// Runs when is_checked updates
-	$: validate_form(is_checked, first_name, surname, email, phone);
+	$: validate_form(is_checked, first_name, surname, email_value, phone_number_value);
 </script>
 
 {#if available_hours.every((hour) => hour == false)}
@@ -136,9 +143,16 @@
 		</p>
 		<input placeholder="First Name" type="text" bind:value={first_name} name="firstname" required />
 		<input placeholder="Surname" type="text" bind:value={surname} name="surname" required />
-		<input placeholder="Contact Email" type="email" bind:value={email} name="email" required />
-		<input placeholder="Phone Number" type="tel" bind:value={phone} name="phone" required />
+		<input
+			placeholder="Contact Email"
+			type="email"
+			bind:value={email_value}
+			bind:this={email_element}
+			name="email"
+			required
+		/>
 
+		<Tel_input bind:phone_number_value />
 		<Booking_form_hour_buttons
 			{available_hours}
 			{STUDIO_OPERATING_HOURS}
@@ -147,7 +161,7 @@
 			bind:rate_multiplier
 		/>
 
-		<textarea placeholder="Additional notes" name="message" />
+		<textarea placeholder="Additional notes" name="message" bind:value={message} />
 
 		<hr />
 		<Cost_summary bind:total_cost {HOURLY_RATE} {rate_multiplier} />
@@ -176,7 +190,6 @@
 		flex-direction: column;
 		padding: 1rem;
 		border-radius: 1rem;
-		border-radius: 0.5rem;
 		border-color: black;
 		border-style: solid;
 		border-width: 1px;
@@ -184,8 +197,13 @@
 		max-width: 80vw;
 	}
 
+	textarea {
+		padding-top: 0.5em;
+		padding-right: 0.5em;
+		padding-bottom: 0.5em;
+	}
+
 	form > input[type='text'],
-	form > input[type='tel'],
 	form > input[type='email'],
 	form > textarea {
 		border-color: black;
@@ -194,16 +212,17 @@
 		border-radius: 1rem;
 		margin: 0.5rem;
 		box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-
+		padding-left: 0.5em;
 		height: 1rem;
-		text-indent: 10px;
+		font-size: 0.9rem;
 	}
 
 	form > input::placeholder,
 	form > textarea::placeholder {
-		color: #111111;
-		font-style: bold;
-		font-size: 1rem;
+		color: grey;
+		font-style: italic;
+		font-weight: bold;
+		font-size: 0.8rem;
 	}
 
 	form > textarea {
@@ -218,9 +237,12 @@
 		border-radius: 1rem;
 		margin: 0.5rem;
 		box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+		font-size: 0.9rem;
+		font-weight: bold;
 	}
 
 	button:enabled {
+		background-color: #0089c4;
 		cursor: grab;
 	}
 </style>

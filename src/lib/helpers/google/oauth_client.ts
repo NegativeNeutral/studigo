@@ -2,13 +2,15 @@ import { google } from 'googleapis';
 import { env } from '$env/dynamic/private';
 import { vercel_save_google_oauth_refresh_token } from '$lib/helpers/vercel/postgres_client';
 
+const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
+
 const GOOGLE_OAUTH2_CLIENT = new google.auth.OAuth2({
 	clientSecret: env.GCP_CLIENT_SECRET,
 	clientId: env.GCP_CLIENT_ID,
 	redirectUri: env.GCP_REDIRECT_URL
 });
 
-const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
+GOOGLE_OAUTH2_CLIENT.forceRefreshOnFailure = true;
 
 /**
  * Retrieve the URL that allows users to grant permissions to read and write
@@ -29,6 +31,7 @@ export function google_get_oauth_req_url() {
  * @returns `true` if OAuth is set, otherwise `false`
  */
 export function google_get_is_oauth_set() {
+	console.log('Checking if OAuth is set');
 	return !!GOOGLE_OAUTH2_CLIENT.credentials;
 }
 

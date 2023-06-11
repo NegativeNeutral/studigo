@@ -1,4 +1,5 @@
 import type { Studio_owner } from '$lib/types';
+import type { E164Number } from 'svelte-tel-input/types';
 
 /**
  * Determines if a JavaScript Object is empty or not.
@@ -56,7 +57,7 @@ export function construct_qps(obj: object) {
 export function booking_description_builder(
 	full_name: string,
 	studio_name: string,
-	phone_number: string,
+	phone_number: E164Number,
 	email: string,
 	message = 'They left no extra message 😔'
 ) {
