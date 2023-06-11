@@ -2,6 +2,7 @@
 	import type { Cal_event } from '$lib/types';
 	import { decimal_currency_subunit_to_unit, construct_qps, booking_description_builder } from '$lib/helpers/helpers';
 	import Booking_form_hour_buttons from '$lib/components/booking_form_hour_buttons.svelte';
+	import Cost_summary from '$lib/components/cost_summary.svelte';
 	import { Circle } from 'svelte-loading-spinners';
 
 	export let STUDIO_OPERATING_HOURS: number;
@@ -25,6 +26,8 @@
 
 	let rate_multiplier = 0;
 	let booking_has_submit = false;
+
+	let total_cost = 0;
 
 	let formatted_time = selected_start_time?.toLocaleDateString('en-GB', {
 		weekday: 'long',
@@ -95,7 +98,7 @@
 			start_time: time[0],
 			end_time: time[1],
 			studio_name: STUDIO_NAME,
-			booking_price: HOURLY_RATE * rate_multiplier,
+			booking_price: total_cost,
 			description: booking_description_builder(
 				FULL_NAME,
 				STUDIO_NAME,
@@ -146,19 +149,21 @@
 
 		<textarea placeholder="Additional notes" name="message" />
 
-		<div class="submit_row">
-			<button type="submit" bind:this={submit_button} autocomplete="off" disabled="true">Submit</button>
-			<h4>Cost: £{decimal_currency_subunit_to_unit(HOURLY_RATE * rate_multiplier)}</h4>
-		</div>
+		<hr />
+		<Cost_summary bind:total_cost {HOURLY_RATE} {rate_multiplier} />
+		<button type="submit" bind:this={submit_button} autocomplete="off" disabled="true"
+			>Proceed to payment (£{decimal_currency_subunit_to_unit(total_cost)})</button
+		>
 	</form>
 {/if}
 
 <style>
-	.submit_row {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-evenly;
+	hr {
+		width: 100%;
+		height: 0.1vh;
+		background-color: black;
+		border-color: black;
+		border-radius: 1rem;
 	}
 
 	p {
@@ -204,5 +209,18 @@
 	form > textarea {
 		height: 5rem;
 		resize: none;
+	}
+
+	button {
+		border-color: black;
+		border-style: solid;
+		border-width: 1px;
+		border-radius: 1rem;
+		margin: 0.5rem;
+		box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+	}
+
+	button:enabled {
+		cursor: grab;
 	}
 </style>
