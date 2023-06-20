@@ -81,7 +81,7 @@ export async function vercel_get_studio_owner_info(studio_id: number) {
 		console.log(`Fetched '${RES.studio_name}'`);
 		return RES;
 	} catch (e) {
-		console.log('bugger!');
+		console.error('studio ID is likely invalid...');
 		return {} as Studio_owner;
 	}
 }
@@ -93,6 +93,5 @@ export async function vercel_get_studio_owner_info(studio_id: number) {
  */
 export async function vercel_get_all_studios() {
 	const RES = await CLIENT.selectFrom('studio_owners').select(['studio_name', 'studio_id']).execute();
-	console.log(RES);
 	return RES;
 }
