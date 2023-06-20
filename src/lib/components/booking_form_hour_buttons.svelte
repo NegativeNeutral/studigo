@@ -120,6 +120,8 @@
 		background-color: white;
 		margin: 0;
 
+		transition: background-color 0.2s;
+
 		font: inherit;
 		color: currentColor;
 		width: 100%;
