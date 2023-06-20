@@ -9,6 +9,8 @@
 
 	export let data: PageData;
 
+	console.log(data);
+
 	const TOMORROW = new Date();
 	const END = new Date();
 	TOMORROW.setDate(TOMORROW.getDate() + 1);
@@ -128,7 +130,9 @@
 <h1>Welcome to StudiGo</h1>
 
 <div class="master_container">
-	{#if show_calendar && data.is_oauth_set}
+	{#if data.slug_is_invalid}
+		<h1>This studio doesn't exist, please navigate away from <code>{data.path}</code></h1>
+	{:else if show_calendar && data.is_oauth_set}
 		<div
 			class="carousel_phase"
 			in:fly|local={{ x: ANIM_SPEED * fly_direction, duration: ANIM_DURATION, opacity: 100 }}

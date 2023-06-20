@@ -72,12 +72,17 @@ export function vercel_save_google_oauth_refresh_token(token: string | null | un
  */
 export async function vercel_get_studio_owner_info(studio_id: number) {
 	console.log(`Fetching STUDIO_ID '${studio_id}'`);
-	const RES = (await CLIENT.selectFrom('studio_owners')
-		.selectAll()
-		.where('studio_id', '=', `${studio_id}`)
-		.executeTakeFirst()) as Studio_owner;
-	console.log(`Fetched '${RES.studio_name}'`);
-	return RES;
+	try {
+		const RES = (await CLIENT.selectFrom('studio_owners')
+			.selectAll()
+			.where('studio_id', '=', `${studio_id}`)
+			.executeTakeFirst()) as Studio_owner;
+		console.log(`Fetched '${RES.studio_name}'`);
+		return RES;
+	} catch (e) {
+		console.log('bugger!');
+		return {} as Studio_owner;
+	}
 }
 
 export async function vercel_get_all_studios() {

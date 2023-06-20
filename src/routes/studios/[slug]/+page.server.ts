@@ -1,5 +1,6 @@
 import { google_get_is_oauth_set, google_refresh_oauth2 } from '$lib/helpers/google/oauth_client';
 import { vercel_get_studio_owner_info } from '$lib/helpers/vercel/postgres_client';
+import { obj_is_empty } from '$lib/helpers/helpers';
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url, params }) => {
@@ -8,6 +9,7 @@ export const load = (async ({ url, params }) => {
 
 	return {
 		path: url.pathname,
+		slug_is_invalid: obj_is_empty(RES),
 		is_oauth_set: google_get_is_oauth_set() && REFRESH_TOKEN_IS_VALID,
 		studio_opening_hour: RES?.studio_opening_hour,
 		studio_operating_hours: RES?.studio_operating_hours,
