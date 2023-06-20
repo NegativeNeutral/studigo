@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Booking_submit_form from '$lib/components/booking_submit_form.svelte';
+	import Booking_submit_form from '$lib/components/booking_form/booking_submit_form.svelte';
 	import { construct_qps } from '$lib/helpers/helpers';
 	import { fly } from 'svelte/transition';
 	import { Circle } from 'svelte-loading-spinners';
@@ -8,8 +8,6 @@
 	import type { Cal_event } from '$lib/types';
 
 	export let data: PageData;
-
-	console.log(data);
 
 	const TOMORROW = new Date();
 	const END = new Date();
@@ -120,14 +118,7 @@
 
 		return hour_is_free;
 	}
-
-	$: show_calendar,
-		() => {
-			console.log();
-		};
 </script>
-
-<h1>Welcome to StudiGo</h1>
 
 <div class="master_container">
 	{#if data.slug_is_invalid}
@@ -173,7 +164,7 @@
 			/>
 		</div>
 	{:else if !data.is_oauth_set}
-		<p><i>We can't access <b>{STUDIO_NAME}</b>'s calendar</i></p>
+		<p class="no_display_text"><i>We can't access <b>{STUDIO_NAME}</b>'s calendar</i></p>
 	{/if}
 </div>
 
@@ -216,5 +207,10 @@
 		background-color: #66666666;
 		width: 100%;
 		height: 100%;
+	}
+
+	.no_display_text {
+		margin-left: 0.1vw;
+		margin-right: 0.1vw;
 	}
 </style>

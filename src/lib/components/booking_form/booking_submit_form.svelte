@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { decimal_currency_subunit_to_unit, construct_qps, booking_description_builder } from '$lib/helpers/helpers';
-	import Booking_form_hour_buttons from '$lib/components/booking_form_hour_buttons.svelte';
-	import Tel_input from '$lib/components/tel_input.svelte';
-	import Cost_summary from '$lib/components/cost_summary.svelte';
+	import Booking_form_hour_buttons from './children/booking_form_hour_buttons.svelte';
+	import Tel_input from './children/tel_input.svelte';
+	import Cost_summary from './children/cost_summary.svelte';
 	import { Circle } from 'svelte-loading-spinners';
 	import { onMount } from 'svelte';
 

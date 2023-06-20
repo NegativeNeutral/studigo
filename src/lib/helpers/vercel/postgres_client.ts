@@ -1,4 +1,5 @@
 import { createKysely } from '@vercel/postgres-kysely';
+import type { Generated } from 'kysely';
 import { env } from '$env/dynamic/private';
 import { studio_id_store } from '$lib/Store';
 import type { Studio_owner } from '$lib/types';
@@ -75,7 +76,7 @@ export async function vercel_get_studio_owner_info(studio_id: number) {
 	try {
 		const RES = (await CLIENT.selectFrom('studio_owners')
 			.selectAll()
-			.where('studio_id', '=', `${studio_id}`)
+			.where('studio_id', '=', studio_id)
 			.executeTakeFirst()) as Studio_owner;
 		console.log(`Fetched '${RES.studio_name}'`);
 		return RES;
@@ -85,6 +86,11 @@ export async function vercel_get_studio_owner_info(studio_id: number) {
 	}
 }
 
+/**
+ * Gets all of the studios & studio names from the studio owners table.
+ * @returns A list of objects containing every of studio ID & studio name, in
+ * pairs
+ */
 export async function vercel_get_all_studios() {
 	const RES = await CLIENT.selectFrom('studio_owners').select(['studio_name', 'studio_id']).execute();
 	console.log(RES);
