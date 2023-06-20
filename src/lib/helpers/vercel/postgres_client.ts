@@ -71,9 +71,17 @@ export function vercel_save_google_oauth_refresh_token(token: string | null | un
  * @returns The `Studio_owner` object
  */
 export async function vercel_get_studio_owner_info(studio_id: number) {
-	const RES = await CLIENT.selectFrom('studio_owners')
+	console.log(`Fetching STUDIO_ID '${studio_id}'`);
+	const RES = (await CLIENT.selectFrom('studio_owners')
 		.selectAll()
 		.where('studio_id', '=', `${studio_id}`)
-		.executeTakeFirst();
-	return RES as Studio_owner;
+		.executeTakeFirst()) as Studio_owner;
+	console.log(`Fetched '${RES.studio_name}'`);
+	return RES;
+}
+
+export async function vercel_get_all_studios() {
+	const RES = await CLIENT.selectFrom('studio_owners').select(['studio_name', 'studio_id']).execute();
+	console.log(RES);
+	return RES;
 }
