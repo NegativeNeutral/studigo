@@ -5,11 +5,11 @@ import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url }) => {
 	const RES = await vercel_get_studio_owner_info(parseInt(env.PHOTOMAFIA_STUDIO_OWNER_ID as string));
-	await google_refresh_oauth2(RES?.google_oauth_refresh_token);
+	const REFRESH_TOKEN_IS_VALID = await google_refresh_oauth2(RES?.google_oauth_refresh_token);
 
 	return {
 		path: url.pathname,
-		is_oauth_set: google_get_is_oauth_set(),
+		is_oauth_set: google_get_is_oauth_set() && REFRESH_TOKEN_IS_VALID,
 		studio_opening_hour: RES?.studio_opening_hour,
 		studio_operating_hours: RES?.studio_operating_hours,
 		hourly_rate: RES?.studio_rate,

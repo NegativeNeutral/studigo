@@ -77,8 +77,14 @@ export async function google_refresh_oauth2(refresh_token: string | undefined) {
 		return google_get_is_oauth_set();
 	}
 
-	GOOGLE_OAUTH2_CLIENT.setCredentials({ refresh_token: refresh_token });
-	const OUT = await GOOGLE_OAUTH2_CLIENT.refreshAccessToken();
-	GOOGLE_OAUTH2_CLIENT.setCredentials({ refresh_token: refresh_token, access_token: OUT.credentials.access_token });
+	try {
+		GOOGLE_OAUTH2_CLIENT.setCredentials({ refresh_token: refresh_token });
+		const OUT = await GOOGLE_OAUTH2_CLIENT.refreshAccessToken();
+		GOOGLE_OAUTH2_CLIENT.setCredentials({ refresh_token: refresh_token, access_token: OUT.credentials.access_token });
+	} catch (e) {
+		console.log('FUCCCCK');
+		return false;
+	}
+
 	return google_get_is_oauth_set();
 }

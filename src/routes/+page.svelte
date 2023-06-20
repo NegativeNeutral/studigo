@@ -128,7 +128,7 @@
 <h1>Welcome to StudiGo</h1>
 
 <div class="master_container">
-	{#if show_calendar}
+	{#if show_calendar && data.is_oauth_set}
 		<div
 			class="carousel_phase"
 			in:fly|local={{ x: ANIM_SPEED * fly_direction, duration: ANIM_DURATION, opacity: 100 }}
@@ -150,7 +150,7 @@
 				<div class="loading_cover" />
 			{/if}
 		</div>
-	{:else if !show_calendar && !is_waiting_for_api}
+	{:else if !show_calendar && !is_waiting_for_api && data.is_oauth_set}
 		<div
 			class="carousel_phase"
 			in:fly|local={{ x: ANIM_SPEED * fly_direction, duration: ANIM_DURATION, opacity: 100 }}
@@ -169,7 +169,7 @@
 			/>
 		</div>
 	{:else if !data.is_oauth_set}
-		<h2><i>(Something has gone wrong here...)</i></h2>
+		<p><i>We can't access <b>{STUDIO_NAME}</b>'s calendar</i></p>
 	{/if}
 </div>
 
