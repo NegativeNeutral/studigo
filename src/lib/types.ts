@@ -28,7 +28,7 @@ export type Booking_form_inputs = {
 	surname: string;
 	email_value: string;
 	phone_number_value: E164Number;
-	people_coming: number;
+	people_coming: number | undefined;
 	booking_reason: string;
 	message: string;
 };

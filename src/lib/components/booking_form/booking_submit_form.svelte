@@ -31,7 +31,7 @@
 		surname: '',
 		email_value: '',
 		phone_number_value: '',
-		people_coming: 0,
+		people_coming: undefined,
 		booking_reason: '',
 		message: ''
 	} as Booking_form_inputs;
@@ -69,7 +69,9 @@
 
 				// Handles the number - checks if the value is less than 1
 				case 'people_coming':
-					if ((form_values[k as keyof Booking_form_inputs] as number) < 1) {
+					const X = form_values[k as keyof Booking_form_inputs] as number | undefined;
+					console.log(X);
+					if (X == undefined || X < 1) {
 						return false;
 					}
 					break;
@@ -311,7 +313,7 @@
 	}
 
 	form > textarea {
-		padding-top: 4px;
+		padding-top: px;
 		height: 5rem;
 		resize: none;
 	}

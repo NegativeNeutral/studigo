@@ -1,11 +1,12 @@
 <script lang="ts">
-	export let people_coming: number = 0;
+	export let people_coming: number;
 </script>
 
 <div>
 	<label for="people_coming">People attending:</label>
 	<input
-		type="text"
+		type="number"
+		pattern="\d*"
 		placeholder="1"
 		on:keypress={(e) =>
 			['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(e.key) ? true : e.preventDefault()}
@@ -57,5 +58,11 @@
 		font-size: 0.9rem;
 		height: 1rem;
 		flex-grow: 1;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
 	}
 </style>
