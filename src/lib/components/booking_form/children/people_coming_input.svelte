@@ -7,7 +7,8 @@
 	<input
 		type="text"
 		placeholder="1"
-		pattern="[0-9]+"
+		on:keypress={(e) =>
+			['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(e.key) ? true : e.preventDefault()}
 		bind:value={people_coming}
 		id="people_coming"
 		name="people_coming"
