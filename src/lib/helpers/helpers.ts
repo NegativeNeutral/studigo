@@ -59,14 +59,18 @@ export function booking_description_builder(
 	studio_name: string,
 	phone_number: E164Number,
 	email: string,
+	people_coming: number,
+	reason: string,
 	message = 'They left no extra message 😔'
 ) {
 	return [
-		`<b>${full_name}</b> booked ${studio_name} via the StudiGo app 🎉`,
+		`<b>${full_name}</b> booked <b>${studio_name}</b> via the StudiGo app 🎉`,
 		``,
 		`Contact Phone Number: <b>${phone_number}</b>`,
 		`Contact Email: <b>${email}</b>`,
-		`Their message: '<i>${message === '' ? 'They left no extra message 😔' : message}</i>'`
+		'',
+		`The booking is for <b>${people_coming}</b> people, and they gave the reason for booking as '<i>${reason}</i>'`,
+		message === '' ? '' : `They left an additional message, '<i>${message}</i>'`
 	].join('\n');
 }
 

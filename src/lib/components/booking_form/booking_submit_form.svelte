@@ -3,11 +3,11 @@
 	import Booking_form_hour_buttons from './children/booking_form_hour_buttons.svelte';
 	import Tel_input from './children/tel_input.svelte';
 	import Cost_summary from './children/cost_summary.svelte';
+	import People_coming_input from './children/people_coming_input.svelte';
 	import { Circle } from 'svelte-loading-spinners';
 	import { onMount } from 'svelte';
 
-	import type { Cal_event } from '$lib/types';
-	import type { E164Number } from 'svelte-tel-input/types';
+	import type { Cal_event, Booking_form_inputs } from '$lib/types';
 
 	export let STUDIO_OPERATING_HOURS: number;
 	export let STUDIO_OPENING_HOUR: number;
@@ -25,12 +25,16 @@
 	let email_element: HTMLInputElement;
 
 	// HTML value bindings
-	let is_checked = new Array<boolean>(STUDIO_OPERATING_HOURS).fill(false);
-	let first_name = '';
-	let surname = '';
-	let email_value = '';
-	let message = '';
-	let phone_number_value: E164Number = '';
+	let form_values = {
+		is_checked: new Array<boolean>(STUDIO_OPERATING_HOURS).fill(false),
+		first_name: '',
+		surname: '',
+		email_value: '',
+		phone_number_value: '',
+		people_coming: 0,
+		booking_reason: '',
+		message: ''
+	} as Booking_form_inputs;
 
 	let rate_multiplier = 0;
 	let booking_has_submit = false;
@@ -53,17 +57,37 @@
 	 * 4. Checkboxes between the head and tail should never be checkable
 	 * @param cs A boolean array indicating if a checkbox is clicked or not.
 	 */
-	function validate_form(cs: boolean[], fn: string, sn: string, e: string, p: E164Number) {
-		const BOXES_ARE_TICKED = cs.filter((v) => v == true).length;
+	function validate_form(form_values: Booking_form_inputs) {
+		for (let k in form_values) {
+			switch (k) {
+				// Handles the boolean array - checks if any of the values are true
+				case 'is_checked':
+					if (!(form_values[k as keyof Booking_form_inputs] as boolean[]).includes(true)) {
+						return false;
+					}
+					break;
 
-		// If the form can be submitted, allow submit button
-		if (BOXES_ARE_TICKED && fn?.length && sn?.length && e?.length && p.length) {
-			submit_button?.removeAttribute('disabled');
+				// Handles the number - checks if the value is less than 1
+				case 'people_coming':
+					if ((form_values[k as keyof Booking_form_inputs] as number) < 1) {
+						return false;
+					}
+					break;
+
+				// Is not a required input
+				case 'message':
+					break;
+
+				// Handles every other string or string adjacent type = checks if no length
+				default:
+					if ((form_values[k as keyof Booking_form_inputs] as string).length < 1) {
+						console.log(`${k} is undefined`);
+						return false;
+					}
+			}
 		}
-		// Disallow submit button
-		else {
-			submit_button?.setAttribute('disabled', 'true');
-		}
+
+		return true;
 	}
 
 	/**
@@ -95,7 +119,7 @@
 			time[1] = t.toISOString();
 		}
 
-		const FULL_NAME = `${first_name} ${surname}`;
+		const FULL_NAME = `${form_values.first_name} ${form_values.surname}`;
 
 		const QPS = {
 			cal_id: CAL_ID,
@@ -104,7 +128,15 @@
 			end_time: time[1],
 			studio_name: STUDIO_NAME,
 			booking_price: total_cost,
-			description: booking_description_builder(FULL_NAME, STUDIO_NAME, phone_number_value, email_value, message)
+			description: booking_description_builder(
+				FULL_NAME,
+				STUDIO_NAME,
+				form_values.phone_number_value,
+				form_values.email_value,
+				form_values.people_coming,
+				form_values.booking_reason,
+				form_values.message
+			)
 		};
 
 		return construct_qps(QPS);
@@ -131,7 +163,9 @@
 	});
 
 	// Runs when is_checked updates
-	$: validate_form(is_checked, first_name, surname, email_value, phone_number_value);
+	$: validate_form(form_values)
+		? submit_button?.removeAttribute('disabled')
+		: submit_button?.setAttribute('disabled', 'true');
 </script>
 
 {#if available_hours.every((hour) => hour == false)}
@@ -161,27 +195,35 @@
 				Book <b>{formatted_time}</b>
 			</p>
 		</span>
-		<input placeholder="First Name" type="text" bind:value={first_name} name="firstname" required />
-		<input placeholder="Surname" type="text" bind:value={surname} name="surname" required />
+		<input placeholder="First Name" type="text" bind:value={form_values.first_name} name="firstname" required />
+		<input placeholder="Surname" type="text" bind:value={form_values.surname} name="surname" required />
 		<input
 			placeholder="Contact Email"
 			type="email"
-			bind:value={email_value}
+			bind:value={form_values.email_value}
 			bind:this={email_element}
 			name="email"
 			required
 		/>
 
-		<Tel_input bind:phone_number_value />
+		<Tel_input bind:phone_number_value={form_values.phone_number_value} />
 		<Booking_form_hour_buttons
 			{available_hours}
 			{STUDIO_OPERATING_HOURS}
 			{STUDIO_OPENING_HOUR}
-			bind:is_checked
+			bind:is_checked={form_values.is_checked}
 			bind:rate_multiplier
 		/>
 
-		<textarea placeholder="Additional notes" name="message" bind:value={message} />
+		<People_coming_input bind:people_coming={form_values.people_coming} />
+
+		<textarea
+			placeholder="Describe why you're booking the studio"
+			name="booking_reason"
+			bind:value={form_values.booking_reason}
+			required
+		/>
+		<textarea placeholder="(Optional) Any additional messages" name="message" bind:value={form_values.message} />
 
 		<hr />
 		<Cost_summary bind:total_cost {HOURLY_RATE} {rate_multiplier} />
@@ -210,6 +252,7 @@
 		text-align: center;
 		vertical-align: middle;
 	}
+
 	.top_row {
 		display: flex;
 		flex-direction: row;
@@ -268,6 +311,7 @@
 	}
 
 	form > textarea {
+		padding-top: 4px;
 		height: 5rem;
 		resize: none;
 	}

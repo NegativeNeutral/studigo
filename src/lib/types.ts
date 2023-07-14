@@ -1,3 +1,5 @@
+import type { E164Number } from 'svelte-tel-input/types';
+
 export type Cal_event = [string, string];
 
 export type Google_cal_create_event = {
@@ -18,4 +20,15 @@ export type Studio_owner = {
 	studio_opening_hour: number;
 	studio_operating_hours: number;
 	google_oauth_refresh_token: string;
+};
+
+export type Booking_form_inputs = {
+	is_checked: boolean[];
+	first_name: string;
+	surname: string;
+	email_value: string;
+	phone_number_value: E164Number;
+	people_coming: number;
+	booking_reason: string;
+	message: string;
 };

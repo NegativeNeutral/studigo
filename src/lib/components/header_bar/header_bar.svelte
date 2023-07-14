@@ -16,6 +16,7 @@
 		border-bottom-left-radius: 5px;
 		border-bottom-right-radius: 5px;
 		margin-bottom: 1vh;
+		z-index: 10000;
 	}
 
 	a {
