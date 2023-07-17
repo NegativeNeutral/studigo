@@ -1,5 +1,20 @@
+<script lang="ts">
+  import { isAuthenticated, user } from '$lib/Store';
+</script>
+
 <nav>
 	<a href="/">StudiGo</a>
+
+	{#if $isAuthenticated}
+			<a href="/logout">Logout</a>
+			{#if $user.picture}
+			<img src={$user.picture} alt={user.name} style="max-width: 50px; max-height: 50px; border-radius: 100%;" />
+			{:else}
+			<p>Hey, {$user.name}</p>
+			{/if}
+	{:else}
+		<a href="/login">Login</a>
+	{/if}
 </nav>
 
 <style>
