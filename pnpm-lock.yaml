@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@auth0/auth0-spa-js': ^2.1.0
   '@playwright/test': ^1.36.0
   '@stripe/stripe-js': ^1.54.1
   '@sveltejs/adapter-auto': ^2.1.0
@@ -30,6 +31,7 @@ specifiers:
   vitest: ^0.33.0
 
 dependencies:
+  '@auth0/auth0-spa-js': 2.1.0
   '@stripe/stripe-js': 1.54.1
   '@sveltejs/adapter-vercel': 3.0.2_@sveltejs+kit@1.22.3
   '@vercel/postgres-kysely': 0.4.0_kysely@0.26.1
@@ -73,6 +75,10 @@ packages:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.3
       '@jridgewell/trace-mapping': 0.3.18
+
+  /@auth0/auth0-spa-js/2.1.0:
+    resolution: {integrity: sha512-7cF2NxrslgjArIdBwpNg02atPldpHHOrXxDScL71cbxKuKny3eziZIpNHQAdsPFiLhjKQ+izWmLq2ZRFlYB/eQ==}
+    dev: false
 
   /@esbuild/android-arm/0.18.12:
     resolution: {integrity: sha512-LIxaNIQfkFZbTLb4+cX7dozHlAbAshhFE5PKdro0l+FnCpx1GDJaQ2WMcqm+ToXKMt8p8Uojk/MFRuGyz3V5Sw==}

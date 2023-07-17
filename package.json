@@ -38,6 +38,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@auth0/auth0-spa-js": "^2.1.0",
 		"@stripe/stripe-js": "^1.54.1",
 		"@sveltejs/adapter-vercel": "^3.0.2",
 		"@vercel/postgres-kysely": "^0.4.0",
