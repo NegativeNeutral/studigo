@@ -9,13 +9,14 @@ export const load = (({ url }) => {
 
 	return {
 		booked_date: START_DATE.toLocaleDateString('en-GB', {
+			timeZone: 'Europe/London',
 			weekday: 'long',
 			year: 'numeric',
 			month: 'long',
 			day: 'numeric'
 		}),
-		start_time: START_DATE.toLocaleTimeString(),
-		end_time: END_DATE.toLocaleTimeString(),
+		start_time: START_DATE.toLocaleTimeString('en-GB', { timeZone: 'Europe/London' }),
+		end_time: END_DATE.toLocaleTimeString('en-GB', { timeZone: 'Europe/London' }),
 		studio_name: QPS.studio_name
 	};
 }) satisfies PageServerLoad;

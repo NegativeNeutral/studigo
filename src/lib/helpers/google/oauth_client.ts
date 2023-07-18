@@ -43,7 +43,6 @@ export function google_get_is_oauth_set() {
  */
 export async function google_set_oauth2_credentials(code: string) {
 	const { tokens } = await GOOGLE_OAUTH2_CLIENT.getToken(code);
-	console.log(tokens);
 	vercel_save_google_oauth_refresh_token(tokens.refresh_token);
 	GOOGLE_OAUTH2_CLIENT.setCredentials(tokens);
 }
@@ -83,7 +82,7 @@ export async function google_refresh_oauth2(refresh_token: string | undefined) {
 		const OUT = await GOOGLE_OAUTH2_CLIENT.refreshAccessToken();
 		GOOGLE_OAUTH2_CLIENT.setCredentials({ refresh_token: refresh_token, access_token: OUT.credentials.access_token });
 	} catch (e) {
-		console.log('FUCCCCK');
+		console.error(e);
 		return false;
 	}
 

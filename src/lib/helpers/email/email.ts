@@ -18,6 +18,6 @@ export async function send_mail(mailDetails: SendMailOptions, callback: (x: Sent
 		const info = await transporter.sendMail(mailDetails);
 		callback(info);
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 	}
 }

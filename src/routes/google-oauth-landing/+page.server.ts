@@ -6,7 +6,7 @@ import type { PageServerLoad } from '../$types';
 
 export const load = (async ({ url }) => {
 	const QPS = deconstruct_qps(url);
-	console.log(QPS);
+
 	if (QPS.code) {
 		await google_set_oauth2_credentials(QPS.code);
 	}

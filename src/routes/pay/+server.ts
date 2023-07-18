@@ -13,31 +13,48 @@ import type { Cal_event } from '$lib/types';
 export const POST = (async (event) => {
 	const DATA = await event.request.json();
 
+	const START_DATE = new Date(DATA.start_time);
+	const END_DATE = new Date(DATA.end_time);
+	const booked_date = START_DATE.toLocaleDateString('en-GB', {
+		timeZone: 'Europe/London',
+		weekday: 'long',
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric'
+	});
+
+	const start_time = START_DATE.toLocaleTimeString('en-GB', { timeZone: 'Europe/London' });
+	const end_time = END_DATE.toLocaleTimeString('en-GB', { timeZone: 'Europe/London' });
+
+	// TODO: Update messages & use HTML template
+	const CUSTOMER_MESSAGE = `The booking is on ${booked_date}, starting at ${start_time} and ending at ${end_time}.
+
+	${DATA.description}
+	`;
+
+	const STUDIO_MESSAGE = `The booking is on ${booked_date}, starting at ${start_time} and ending at ${end_time}.
+
+	${DATA.description}
+	`;
+
 	const CONFIRM_TO_CUSTOMER = {
 		from: 'FoundStu <booking-confirmed@foundstu.com>',
 		to: DATA.customer_email,
-		subject: 'You booked the Studio!',
-		text: 'Thankyou for using FoundStu!',
-		html: 'Thankyou for using FoundStu!'
+		subject: 'You booked a studio!',
+		text: CUSTOMER_MESSAGE,
+		html: CUSTOMER_MESSAGE
 	};
 
 	const CONFIRM_TO_STUDIO = {
 		from: 'FoundStu <booking-confirmed@foundstu.com>',
 		to: DATA.studio_email,
-		subject: 'You have a booking',
-		text: 'Somebody booked your studio, well done on making loads of money!',
-		html: 'Somebody booked your studio, well done on making loads of money!'
+		subject: DATA.title,
+		text: STUDIO_MESSAGE,
+		html: STUDIO_MESSAGE
 	};
 
-	send_mail(CONFIRM_TO_CUSTOMER, (info) => {
-		console.log(info);
-	});
-
-	send_mail(CONFIRM_TO_STUDIO, (info) => {
-		console.log(info);
-	});
-
-	// TODO: Tidy this the fuck up, handle sending directly to me so I know what is booked when
+	send_mail(CONFIRM_TO_CUSTOMER, () => {});
+	send_mail(CONFIRM_TO_STUDIO, () => {});
 
 	const CAL_EVENT = {
 		title: DATA.title,

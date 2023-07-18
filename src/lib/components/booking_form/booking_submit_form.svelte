@@ -71,7 +71,6 @@
 				// Handles the number - checks if the value is less than 1
 				case 'people_coming':
 					const X = form_values[k as keyof Booking_form_inputs] as number | undefined;
-					console.log(X);
 					if (X == undefined || X < 1) {
 						return false;
 					}
@@ -84,7 +83,6 @@
 				// Handles every other string or string adjacent type = checks if no length
 				default:
 					if ((form_values[k as keyof Booking_form_inputs] as string).length < 1) {
-						console.log(`${k} is undefined`);
 						return false;
 					}
 			}
