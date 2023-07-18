@@ -14,8 +14,8 @@ export const load = (({ url }) => {
 			month: 'long',
 			day: 'numeric'
 		}),
-		start_time: START_DATE.toLocaleTimeString('en-GB'),
-		end_time: END_DATE.toLocaleTimeString('en-GB'),
+		start_time: START_DATE.toLocaleTimeString(),
+		end_time: END_DATE.toLocaleTimeString(),
 		studio_name: QPS.studio_name
 	};
 }) satisfies PageServerLoad;

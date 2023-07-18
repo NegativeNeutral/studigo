@@ -60,7 +60,9 @@ export const load = (async ({ url }) => {
 			start_time: QPS.start_time,
 			end_time: QPS.end_time,
 			description: QPS.description,
-			title: QPS.title
+			title: QPS.title,
+			customer_email: QPS.customer_email,
+			studio_email: QPS.studio_email
 		}
 	};
 }) satisfies PageServerLoad;

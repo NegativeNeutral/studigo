@@ -46,7 +46,7 @@
 			return;
 		}
 
-		let resp = await fetch('/confirm-booking', {
+		let resp = await fetch('/pay', {
 			method: 'POST',
 			body: JSON.stringify(data.cal_data)
 		});
