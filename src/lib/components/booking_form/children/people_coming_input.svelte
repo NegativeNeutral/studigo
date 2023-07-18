@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let people_coming: number;
+	export let people_coming: number | undefined;
 </script>
 
 <div>

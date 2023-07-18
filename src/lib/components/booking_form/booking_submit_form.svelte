@@ -13,6 +13,7 @@
 	export let STUDIO_OPENING_HOUR: number;
 	export let HOURLY_RATE: number;
 	export let STUDIO_NAME: string;
+	export let STUDIO_EMAIL: string;
 	export let CAL_ID: string;
 	export let fly_direction: number;
 	export let show_calendar: boolean;
@@ -129,13 +130,15 @@
 			start_time: time[0],
 			end_time: time[1],
 			studio_name: STUDIO_NAME,
+			studio_email: STUDIO_EMAIL,
 			booking_price: total_cost,
+			customer_email: form_values.email_value,
 			description: booking_description_builder(
 				FULL_NAME,
 				STUDIO_NAME,
 				form_values.phone_number_value,
 				form_values.email_value,
-				form_values.people_coming,
+				form_values.people_coming as number,
 				form_values.booking_reason,
 				form_values.message
 			)
