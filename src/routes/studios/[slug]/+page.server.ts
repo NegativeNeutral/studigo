@@ -15,6 +15,7 @@ export const load = (async ({ url, params }) => {
 		studio_operating_hours: RES?.studio_operating_hours,
 		hourly_rate: RES?.studio_rate,
 		studio_name: RES?.studio_name,
+		studio_email: RES?.studio_email,
 		cal_id: 'primary'
 	};
 }) satisfies PageServerLoad;

@@ -19,6 +19,7 @@
 	const HOURLY_RATE = data.hourly_rate;
 	const STUDIO_NAME = data.studio_name;
 	const CAL_ID = data.cal_id;
+	const STUDIO_EMAIL = data.studio_email;
 
 	let selected_start_time: Date | null = null;
 	let show_calendar = true;
@@ -158,6 +159,7 @@
 				{HOURLY_RATE}
 				{STUDIO_NAME}
 				{CAL_ID}
+				{STUDIO_EMAIL}
 				bind:selected_start_time
 				bind:fly_direction
 				bind:show_calendar
