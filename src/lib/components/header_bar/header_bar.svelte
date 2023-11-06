@@ -1,19 +1,17 @@
 <script lang="ts">
-  import { isAuthenticated, user } from '$lib/Store';
+	import { isAuthenticated, isLoading, userInfo } from '@dopry/svelte-auth0';
 </script>
 
 <nav>
 	<a href="/">StudiGo</a>
 
-	{#if $isAuthenticated}
-			<a href="/logout">Logout</a>
-			{#if $user.picture}
-			<img src={$user.picture} alt={user.name} style="max-width: 50px; max-height: 50px; border-radius: 100%;" />
-			{:else}
-			<p>Hey, {$user.name}</p>
-			{/if}
-	{:else}
+	{#if $isLoading}
+		<p>loading!</p>
+	{:else if !$isAuthenticated}
 		<a href="/login">Login</a>
+	{:else if $isAuthenticated}
+		<p>Hey, {$userInfo.name}</p>
+		<a href="/logout">Logout</a>
 	{/if}
 </nav>
 
